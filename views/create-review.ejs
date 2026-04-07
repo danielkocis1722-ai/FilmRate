@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <%- include("partials/head", { title: "Vytvoriť recenziu | FilmRate" }) %>
+</head>
+<body class="min-h-screen bg-[#05070d] text-white">
+
+  <%- include("partials/navbar") %>
+
+  <main class="mx-auto max-w-7xl px-6 pb-20 pt-14 sm:pt-20">
+    <!-- Header -->
+    <section>
+      <h1 class="max-w-5xl text-4xl font-extrabold leading-tight sm:text-5xl lg:text-7xl">
+        Napíš svoju recenziu.
+      </h1>
+
+      <p class="mt-5 max-w-3xl text-lg leading-8 text-gray-300 sm:text-2xl sm:leading-9">
+        Zdieľaj svoj názor na film, pridaj hodnotenie a pomôž ostatným objaviť to najlepšie z filmového sveta.
+      </p>
+    </section>
+
+    <!-- Main content -->
+    <section class="mt-12 grid gap-8">
+      <!-- Review form -->
+      <section class="rounded-4xl bg-[#171c29] p-6 shadow-[0_10px_40px_rgba(0,0,0,0.35)] sm:p-8 lg:p-10">
+        <h2 class="text-3xl font-extrabold sm:text-4xl">Tvoja recenzia</h2>
+
+        <form method="POST" action="/reviews/create" class="mt-10 space-y-8">
+          <!-- Film select -->
+          <div>
+            <label for="movieId" class="mb-3 block text-lg font-medium text-white/90">
+              Film
+            </label>
+
+            <div class="relative max-w-2xl">
+              <select
+                id="movieId"
+                name="movieId"
+                class="w-full appearance-none rounded-xl bg-[#232730] px-6 py-5 pr-14 text-xl text-white outline-none ring-1 ring-white/5 transition focus:ring-2 focus:ring-cyan-400/40"
+              >
+                <option value="">Vyber film</option>
+
+                <% movies.forEach(movie => { %>
+                  <option
+                    value="<%= movie.id %>"
+                    class="bg-[#232730] text-white"
+                    <%= selectedMovieId === movie.id ? "selected" : "" %>
+                  >
+                    <%= movie.title %>
+                  </option>
+                <% }) %>
+              </select>
+
+              <span class="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-white/70">
+                ˅
+              </span>
+            </div>
+          </div>
+
+          <!-- Rating -->
+          <div>
+            <label for="rating" class="mb-3 block text-lg font-medium text-white/90">
+              Hodnotenie
+            </label>
+
+            <div class="grid grid-cols-2 gap-4 sm:grid-cols-5 lg:grid-cols-10">
+              <label class="cursor-pointer">
+                <input type="radio" name="rating" value="1" class="peer sr-only" />
+                <div class="rounded-xl border border-white/10 bg-[#232730] px-4 py-4 text-center text-lg font-semibold text-white transition hover:bg-white/10 peer-checked:bg-[#738b58] peer-checked:text-white">
+                  1
+                </div>
+              </label>
+
+              <label class="cursor-pointer">
+                <input type="radio" name="rating" value="2" class="peer sr-only" />
+                <div class="rounded-xl border border-white/10 bg-[#232730] px-4 py-4 text-center text-lg font-semibold text-white transition hover:bg-white/10 peer-checked:bg-[#738b58] peer-checked:text-white">
+                  2
+                </div>
+              </label>
+
+              <label class="cursor-pointer">
+                <input type="radio" name="rating" value="3" class="peer sr-only" />
+                <div class="rounded-xl border border-white/10 bg-[#232730] px-4 py-4 text-center text-lg font-semibold text-white transition hover:bg-white/10 peer-checked:bg-[#738b58] peer-checked:text-white">
+                  3
+                </div>
+              </label>
+
+              <label class="cursor-pointer">
+                <input type="radio" name="rating" value="4" class="peer sr-only" />
+                <div class="rounded-xl border border-white/10 bg-[#232730] px-4 py-4 text-center text-lg font-semibold text-white transition hover:bg-white/10 peer-checked:bg-[#738b58] peer-checked:text-white">
+                  4
+                </div>
+              </label>
+
+              <label class="cursor-pointer">
+                <input type="radio" name="rating" value="5" class="peer sr-only" />
+                <div class="rounded-xl border border-white/10 bg-[#232730] px-4 py-4 text-center text-lg font-semibold text-white transition hover:bg-white/10 peer-checked:bg-[#738b58] peer-checked:text-white">
+                  5
+                </div>
+              </label>
+
+              <label class="cursor-pointer">
+                <input type="radio" name="rating" value="6" class="peer sr-only" />
+                <div class="rounded-xl border border-white/10 bg-[#232730] px-4 py-4 text-center text-lg font-semibold text-white transition hover:bg-white/10 peer-checked:bg-[#738b58] peer-checked:text-white">
+                  6
+                </div>
+              </label>
+
+              <label class="cursor-pointer">
+                <input type="radio" name="rating" value="7" class="peer sr-only" />
+                <div class="rounded-xl border border-white/10 bg-[#232730] px-4 py-4 text-center text-lg font-semibold text-white transition hover:bg-white/10 peer-checked:bg-[#738b58] peer-checked:text-white">
+                  7
+                </div>
+              </label>
+
+              <label class="cursor-pointer">
+                <input type="radio" name="rating" value="8" class="peer sr-only" />
+                <div class="rounded-xl border border-white/10 bg-[#232730] px-4 py-4 text-center text-lg font-semibold text-white transition hover:bg-white/10 peer-checked:bg-[#738b58] peer-checked:text-white">
+                  8
+                </div>
+              </label>
+
+              <label class="cursor-pointer">
+                <input type="radio" name="rating" value="9" class="peer sr-only" />
+                <div class="rounded-xl border border-white/10 bg-[#232730] px-4 py-4 text-center text-lg font-semibold text-white transition hover:bg-white/10 peer-checked:bg-[#738b58] peer-checked:text-white">
+                  9
+                </div>
+              </label>
+
+              <label class="cursor-pointer">
+                <input type="radio" name="rating" value="10" class="peer sr-only" />
+                <div class="rounded-xl border border-white/10 bg-[#232730] px-4 py-4 text-center text-lg font-semibold text-white transition hover:bg-white/10 peer-checked:bg-[#738b58] peer-checked:text-white">
+                  10
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Review title -->
+          <div>
+            <label for="reviewTitle" class="mb-3 block text-lg font-medium text-white/90">
+              Nadpis recenzie
+            </label>
+            <input
+              id="reviewTitle"
+              name="reviewTitle"
+              type="text"
+              placeholder="Zadaj krátky nadpis recenzie"
+              class="w-full rounded-xl bg-[#232730] px-6 py-5 text-xl text-white placeholder:text-gray-300/70 outline-none ring-1 ring-white/5 transition focus:ring-2 focus:ring-cyan-400/40"
+            />
+          </div>
+
+          <!-- Review text -->
+          <div>
+            <label for="reviewText" class="mb-3 block text-lg font-medium text-white/90">
+              Text recenzie
+            </label>
+            <textarea
+              id="reviewText"
+              name="reviewText"
+              rows="10"
+              placeholder="Napíš svoju recenziu..."
+              class="w-full resize-none rounded-xl bg-[#232730] px-6 py-5 text-lg text-white placeholder:text-gray-300/70 outline-none ring-1 ring-white/5 transition focus:ring-2 focus:ring-cyan-400/40 sm:text-xl"
+            ></textarea>
+          </div>
+
+          <!-- Spoiler -->
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <label class="flex items-center gap-3 text-lg text-white/90">
+              <input
+                type="checkbox"
+                name="containsSpoilers"
+                class="h-5 w-5 rounded border-white/20 bg-transparent accent-[#738b58]"
+              />
+              <span>Recenzia obsahuje spoilery</span>
+            </label>
+
+            <p class="text-sm text-gray-400 sm:text-base">
+              Neskôr sem môžeš pridať aj validáciu minimálnej dĺžky textu.
+            </p>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex flex-col gap-4 pt-4 sm:flex-row">
+            <button
+              type="submit"
+              class="inline-flex items-center justify-center rounded-lg bg-[#738b58] px-8 py-4 text-xl font-semibold text-white transition hover:bg-[#829d64]"
+            >
+              Publikovať recenziu
+            </button>
+
+            <a
+              href="/reviews"
+              class="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/5 px-8 py-4 text-xl font-medium text-white transition hover:bg-white/10"
+            >
+              Zrušiť
+            </a>
+          </div>
+        </form>
+      </section>
+    </section>
+  </main>
+
+</body>
+</html>

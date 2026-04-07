@@ -1,0 +1,61 @@
+<header
+  class="sticky top-0 z-50 border-b border-white/5 bg-[#05070d]/95 backdrop-blur"
+>
+  <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+    
+    <!-- LOGO -->
+    <a href="/" class="flex items-center gap-3">
+      <img src="/images/logo.png" alt="FilmRate logo" class="h-10 w-auto" />
+      <span class="text-2xl font-extrabold text-white">
+        Film<span class="text-green-500">Rate</span>
+      </span>
+    </a>
+
+    <!-- NAV -->
+    <nav class="hidden items-center gap-10 md:flex">
+      <a href="/" class="text-lg text-white transition hover:text-green-400">
+        Domov
+      </a>
+
+      <a href="/movies" class="text-lg text-white transition hover:text-green-400">
+        Filmy
+      </a>
+
+      <a href="/reviews" class="text-lg text-white transition hover:text-green-400">
+        Recenzie
+      </a>
+
+      <% if (user) { %>
+        <!-- USER -->
+        <a href="/profile" class="text-lg text-green-400 font-semibold">
+          <%= user.username %>
+        </a>
+
+        <!-- LOGOUT -->
+        <form action="/logout" method="POST">
+          <button
+            type="submit"
+            class="text-lg text-white transition hover:text-red-400"
+          >
+            Odhlásiť sa
+          </button>
+        </form>
+
+      <% } else { %>
+        <!-- GUEST -->
+        <a href="/login" class="text-lg text-white transition hover:text-green-400">
+          Prihlásenie
+        </a>
+
+    
+      <% } %>
+    </nav>
+
+    <!-- MOBILE -->
+    <button
+      class="md:hidden rounded-lg border border-white/10 px-3 py-2 text-white"
+    >
+      ☰
+    </button>
+  </div>
+</header>

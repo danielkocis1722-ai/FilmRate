@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <%- include("partials/head", { title: "Registrácia | FilmRate" }) %>
+</head>
+<body class="min-h-screen bg-[#05070d] text-white">
+
+  <%- include("partials/navbar") %>
+
+  <main class="flex min-h-[calc(100vh-73px)] items-center justify-center px-4 py-4">
+    
+    <section class="w-full max-w-200 rounded-[2.25rem] bg-[#07101d]/98 px-7 py-6 shadow-[0_18px_45px_rgba(0,0,0,0.42)] sm:px-9 sm:py-7 md:px-10 md:py-8">
+       <div class="absolute inset-0 -z-10">
+      <img
+        src="/images/hero-cinema.jpg"
+        alt="Kino"
+        class="h-full w-full object-cover"
+      />
+      <div class="absolute inset-0 bg-black/75"></div>
+    </div>
+      <div class="mx-auto max-w-130">
+
+        <!-- HEADING -->
+        <h1 class="text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl">
+          Vytvor si účet vo FilmRate
+        </h1>
+
+        <!-- FORM -->
+        <form method="POST" action="/register" class="mt-6 space-y-4">
+
+          <!-- USERNAME -->
+          <div>
+            <label class="mb-1.5 block text-base font-medium text-white/90">
+              Používateľské meno
+            </label>
+            <input
+              name="username"
+              type="text"
+              placeholder="Zadaj používateľské meno"
+              class="w-full rounded-xl bg-[#232730] px-5 py-3 text-base text-white placeholder:text-gray-300/70 outline-none ring-1 ring-white/5 transition focus:ring-2 focus:ring-cyan-400/40"
+            />
+          </div>
+
+          <!-- EMAIL -->
+          <div>
+            <label class="mb-1.5 block text-base font-medium text-white/90">
+              E-mail
+            </label>
+            <input
+              name="email"
+              type="email"
+              placeholder="Zadaj e-mail"
+              class="w-full rounded-xl bg-[#232730] px-5 py-3 text-base text-white placeholder:text-gray-300/70 outline-none ring-1 ring-white/5 transition focus:ring-2 focus:ring-cyan-400/40"
+            />
+          </div>
+
+          <!-- PASSWORD -->
+          <div>
+            <label class="mb-1.5 block text-base font-medium text-white/90">
+              Heslo
+            </label>
+            <input
+              name="password"
+              type="password"
+              placeholder="Zadaj heslo"
+              class="w-full rounded-xl bg-[#232730] px-5 py-3 text-base text-white placeholder:text-gray-300/70 outline-none ring-1 ring-white/5 transition focus:ring-2 focus:ring-cyan-400/40"
+            />
+          </div>
+
+          <!-- CONFIRM -->
+          <div>
+            <label class="mb-1.5 block text-base font-medium text-white/90">
+              Potvrdenie hesla
+            </label>
+            <input
+              name="confirmPassword"
+              type="password"
+              placeholder="Zopakuj heslo"
+              class="w-full rounded-xl bg-[#232730] px-5 py-3 text-base text-white placeholder:text-gray-300/70 outline-none ring-1 ring-white/5 transition focus:ring-2 focus:ring-cyan-400/40"
+            />
+          </div>
+
+          <!-- TERMS -->
+          <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between pt-1">
+            <label class="flex items-center gap-2 text-sm text-white/90">
+              <input
+                type="checkbox"
+                name="terms"
+                class="h-4 w-4 rounded border-white/20 bg-transparent accent-[#738b58]"
+              />
+              <span>Súhlasím s podmienkami</span>
+            </label>
+
+            <a href="/login" class="text-sm text-[#b6a3ff] underline underline-offset-4 transition hover:text-[#c7b8ff]">
+              Prihlásiť sa
+            </a>
+          </div>
+
+          <!-- BUTTON -->
+          <div class="pt-2 text-center">
+            <button
+              type="submit"
+              class="inline-flex min-w-48 items-center justify-center rounded-lg bg-[#738b58] px-6 py-3 text-lg font-semibold text-white transition hover:bg-[#829d64]"
+            >
+              Vytvoriť účet
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </section>
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <%- include("partials/head", { title: "Filmy | FilmRate" }) %>
+</head>
+<body class="min-h-screen bg-[#05070d] text-white">
+
+  <%- include("partials/navbar") %>
+
+  <main class="mx-auto max-w-7xl px-6 pb-20 pt-14 sm:pt-20">
+    <!-- Header -->
+    <section>
+      <h1 class="max-w-5xl text-4xl font-extrabold leading-tight sm:text-5xl lg:text-7xl">
+        Všetky filmy na jednom mieste.
+      </h1>
+
+   <!-- Search + filters -->
+<div class="mt-10 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+  <div class="w-full lg:max-w-md">
+  <form method="GET" action="/movies" class="w-full lg:max-w-md">
+  <div class="relative">
+    <span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
+      🔍
+    </span>
+    <input
+      type="text"
+      name="q"
+      value="<%= typeof search !== 'undefined' ? search : '' %>"
+      placeholder="Hľadaj film..."
+      class="w-full rounded-xl border border-white/10 bg-white px-11 py-3 text-lg text-black outline-none transition focus:border-cyan-400"
+    />
+  </div>
+</form>
+  </div>
+
+  <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center lg:justify-end">
+    <span class="text-2xl font-semibold text-white/90">Filtrovať:</span>
+
+    <div class="relative">
+      <select class="appearance-none rounded-full border border-white/40 bg-transparent px-6 py-3 pr-12 text-white outline-none">
+        <option class="bg-[#111522] text-white">Žáner</option>
+        <option class="bg-[#111522] text-white">Drama</option>
+        <option class="bg-[#111522] text-white">Sci-fi</option>
+        <option class="bg-[#111522] text-white">Thriller</option>
+      </select>
+      <span class="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-white/70">
+        ˅
+      </span>
+    </div>
+
+    <div class="relative">
+      <select class="appearance-none rounded-full border border-white/40 bg-transparent px-6 py-3 pr-12 text-white outline-none">
+        <option class="bg-[#111522] text-white">Hodnotenie</option>
+        <option class="bg-[#111522] text-white">Najlepšie</option>
+        <option class="bg-[#111522] text-white">Najhoršie</option>
+      </select>
+      <span class="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-white/70">
+        ˅
+      </span>
+    </div>
+
+    <div class="relative">
+      <select class="appearance-none rounded-full border border-white/40 bg-transparent px-6 py-3 pr-12 text-white outline-none">
+        <option class="bg-[#111522] text-white">Dĺžka</option>
+        <option class="bg-[#111522] text-white">Do 90 min</option>
+        <option class="bg-[#111522] text-white">90–120 min</option>
+        <option class="bg-[#111522] text-white">120+ min</option>
+      </select>
+      <span class="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-white/70">
+        ˅
+      </span>
+    </div>
+
+    <button
+      type="button"
+      class="flex h-12 w-12 items-center justify-center rounded-full border border-white/40 text-2xl text-white transition hover:bg-white/10"
+      aria-label="Ďalšie filtre"
+    >
+      ⏃
+    </button>
+  </div>
+</div>
+
+      <div class="mt-10 h-px w-full bg-white/30"></div>
+    </section>
+
+    <!-- Movies list -->
+    <section class="mt-12 space-y-8">
+    <% movies.forEach(movie => { %>
+  <article class="overflow-hidden rounded-4xl bg-[#171c29] shadow-[0_10px_40px_rgba(0,0,0,0.35)]">
+    <div class="flex flex-col md:flex-row">
+      <div class="w-full md:w-55">
+        <img
+          src="<%= movie.poster || 'https://placehold.co/220x300?text=Poster' %>"
+          alt="Poster filmu <%= movie.title %>"
+          class="h-full w-full object-cover"
+        />
+      </div>
+
+      <div class="flex flex-1 flex-col justify-between gap-6 p-6 md:flex-row md:items-stretch md:p-8">
+        <div class="flex-1">
+          <h2 class="text-2xl font-bold sm:text-4xl"><%= movie.title %></h2>
+
+          <div class="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-base text-gray-300 sm:text-xl">
+            <span><%= movie.releaseDate || "—" %></span>
+            <span class="text-yellow-400">⭐ <%= Number(movie.rating || 0).toFixed(1) %>/10</span>
+          </div>
+
+          <p class="mt-6 max-w-3xl text-base leading-7 text-gray-200 sm:text-2xl sm:leading-9">
+            <%= movie.overview || "Bez popisu." %>
+          </p>
+        </div>
+
+        <div class="hidden w-px bg-white/40 md:block"></div>
+
+        <div class="flex items-center justify-end md:min-w-22.5 md:justify-center">
+          <a href="/movies/<%= movie.id %>" class="text-5xl text-white transition hover:translate-x-1">→</a>
+        </div>
+      </div>
+    </div>
+  </article>
+<% }) %>
+    </section>
+
+    <!-- Load more -->
+    <section class="mt-14 flex justify-center">
+      <button
+        class="rounded-full border border-white px-10 py-4 text-xl font-medium text-white transition hover:bg-white hover:text-black sm:px-20"
+      >
+        Načítať viac ↓
+      </button>
+    </section>
+  </main>
+
+  <%- include("partials/footer") %>
+
+</body>
+</html>

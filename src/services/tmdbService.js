@@ -1,0 +1,80 @@
+const axios = require("axios");
+
+const BASE_URL = "https://api.themoviedb.org/3";
+
+async function tmdbGet(endpoint, params = {}) {
+  const response = await axios.get(`${BASE_URL}${endpoint}`, {
+    headers: {
+      Authorization: `Bearer ${process.env.TMDB_BEARER_TOKEN}`,
+      Accept: "application/json",
+    },
+    params,
+  });
+
+  return response.data;
+}
+
+async function getConfig() {
+  return tmdbGet("/configuration");
+}
+
+async function searchMovies(query) {
+  return tmdbGet("/search/movie", {
+    query,
+    language: "sk-SK",
+  });
+}
+
+async function discoverMovies() {
+  return tmdbGet("/discover/movie", {
+    language: "sk-SK",
+    sort_by: "popularity.desc",
+  });
+}
+
+async function getMovieDetails(movieId) {
+  return tmdbGet(`/movie/${movieId}`, {
+    language: "sk-SK",
+  });
+}
+
+async function getMovieCredits(movieId) {
+  return tmdbGet(`/movie/${movieId}/credits`, {
+    language: "sk-SK",
+  });
+}
+
+function buildImageUrl(config, size, filePath) {
+  if (!filePath) return null;
+  return `${config.images.secure_base_url}${size}${filePath}`;
+}
+
+async function getMovieTitlesMap(movieIds) {
+  const uniqueIds = [...new Set(movieIds.filter(Boolean))];
+
+  const results = await Promise.all(
+    uniqueIds.map(async (id) => {
+      try {
+        const movie = await getMovieDetails(id);
+        return [id, movie.title || "Neznámy film"];
+      } catch (error) {
+        console.error(
+          `TMDb title fetch error for movie ${id}:`,
+          error.response?.data || error.message,
+        );
+        return [id, "Neznámy film"];
+      }
+    }),
+  );
+  return Object.fromEntries(results);
+}
+
+module.exports = {
+  getConfig,
+  searchMovies,
+  discoverMovies,
+  getMovieDetails,
+  getMovieCredits,
+  buildImageUrl,
+  getMovieTitlesMap,
+};

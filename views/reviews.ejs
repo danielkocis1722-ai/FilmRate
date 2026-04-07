@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <%- include("partials/head", { title: "Recenzie | FilmRate" }) %>
+</head>
+<body class="min-h-screen bg-[#05070d] text-white">
+
+  <%- include("partials/navbar") %>
+
+  <main class="mx-auto max-w-7xl px-6 pb-20 pt-14 sm:pt-20">
+    <section>
+      <h1 class="max-w-6xl text-4xl font-extrabold leading-tight sm:text-5xl lg:text-7xl">
+        Všetky recenzie na jednom mieste.
+      </h1>
+
+      <div class="mt-10 flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+        <div class="flex flex-col gap-5 lg:flex-row lg:flex-wrap lg:items-center">
+          <div class="w-full lg:w-auto lg:min-w-90">
+            <div class="relative">
+              <span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
+                🔍
+              </span>
+              <input
+                type="text"
+                placeholder="Hľadaj film..."
+                class="w-full rounded-xl border border-white/10 bg-white px-11 py-3 text-lg text-black outline-none transition focus:border-cyan-400"
+              />
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
+            <span class="text-2xl font-semibold text-white/90">Filtrovať:</span>
+
+            <div class="relative">
+              <select class="appearance-none rounded-full border border-white/40 bg-transparent px-6 py-3 pr-12 text-white outline-none">
+                <option class="bg-[#111522] text-white">Dĺžka</option>
+              </select>
+              <span class="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-white/70">˅</span>
+            </div>
+
+            <div class="relative">
+              <select class="appearance-none rounded-full border border-white/40 bg-transparent px-6 py-3 pr-12 text-white outline-none">
+                <option class="bg-[#111522] text-white">Hodnotenie</option>
+              </select>
+              <span class="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-white/70">˅</span>
+            </div>
+
+            <button
+              type="button"
+              class="flex h-12 w-12 items-center justify-center rounded-full border border-white/40 text-2xl text-white transition hover:bg-white/10"
+              aria-label="Ďalšie filtre"
+            >
+              ⏃
+            </button>
+          </div>
+
+          <a
+            href="/reviews/create"
+            class="inline-flex items-center justify-center rounded-lg bg-[#00c950]/90 px-8 py-4 text-xl font-semibold text-white transition hover:bg-[#00c950]/80"
+          >
+            Vytvoriť recenziu
+          </a>
+        </div>
+        </div>  
+      </div>
+
+      <div class="mt-10 h-px w-full bg-white/30"></div>
+    </section>
+
+    <section class="mt-12 space-y-10">
+      <% if (reviews.length === 0) { %>
+        <div class="rounded-4xl bg-[#171c29] p-8 text-center shadow-[0_10px_40px_rgba(0,0,0,0.35)]">
+          <h2 class="text-3xl font-bold">Zatiaľ tu nie sú žiadne recenzie</h2>
+          <p class="mt-4 text-lg text-gray-300">
+            Buď prvý, kto pridá recenziu.
+          </p>
+        </div>
+      <% } %>
+
+      <% reviews.forEach(review => { %>
+        <article class="rounded-4xl bg-[#171c29] p-5 shadow-[0_10px_40px_rgba(0,0,0,0.35)] sm:p-7">
+          <div class="flex flex-col gap-6 md:flex-row">
+            <div class="w-full md:w-36">
+              <img
+                src="https://placehold.co/180x260?text=Poster"
+                alt="Placeholder poster filmu"
+                class="h-full w-full rounded-2xl object-cover"
+              />
+            </div>
+
+            <div class="flex-1">
+              <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div class="flex items-center gap-3">
+                  <img
+                    src="https://placehold.co/48x48?text=AV"
+                    alt="Placeholder avatar používateľa <%= review.username %>"
+                    class="h-12 w-12 rounded-full object-cover"
+                  />
+                  <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <span class="text-lg font-semibold text-white"><%= review.username %></span>
+                    <span class="text-lg text-gray-400">·</span>
+                    <span class="text-lg text-gray-400">
+                      <%= new Date(review.created_at).toLocaleDateString("sk-SK") %>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+                <h2 class="text-3xl font-bold sm:text-4xl">
+                  <%= review.title || "Bez nadpisu" %>
+                </h2>
+                <span class="hidden text-4xl text-gray-400 sm:inline">|</span>
+                <span class="text-2xl font-semibold text-white sm:text-3xl">
+                  ⭐ <%= review.rating %>/10
+                </span>
+              </div>
+              <p class="mt-3 text-lg font-medium text-[#00c950] sm:text-xl">
+  <a href="/movies/<%= review.tmdb_movie_id %>" class="transition hover:opacity-80">
+    <%= review.movieTitle %>
+  </a>
+</p>
+
+              <p class="mt-5 max-w-5xl text-base leading-7 text-gray-300 sm:text-2xl sm:leading-8">
+                <%= review.review_text %>
+              </p>
+
+              <% if (review.contains_spoilers) { %>
+                <p class="mt-4 inline-block rounded-full bg-red-500/15 px-4 py-2 text-sm font-medium text-red-300">
+                  Obsahuje spoilery
+                </p>
+              <% } %>
+
+            <div class="mt-8 flex items-center justify-end gap-4 text-white">
+  <% if (user && user.id !== review.user_id) { %>
+    <form action="/reviews/<%= review.id %>/vote" method="POST">
+      <input type="hidden" name="voteType" value="helpful" />
+      <button class="flex items-center gap-2 text-2xl transition hover:text-gray-300">
+        <span class="cursor-pointer">👍</span>
+        <span class="text-xl"><%= review.helpful_count %></span>
+      </button>
+    </form>
+
+    <form action="/reviews/<%= review.id %>/vote" method="POST">
+      <input type="hidden" name="voteType" value="not_helpful" />
+      <button class="flex items-center gap-2 text-2xl transition hover:text-gray-300">
+        <span class="cursor-pointer">👎</span>
+        <span class="text-xl"><%= review.not_helpful_count %></span>
+      </button>
+    </form>
+  <% } else { %>
+    <div class="flex items-center gap-2 text-2xl text-white/80">
+      <span class="cursor-pointer">👍</span>
+      <span class="text-xl"><%= review.helpful_count %></span>
+    </div>
+
+    <div class="flex items-center gap-2 text-2xl text-white/80">
+      <span class="cursor-pointer">👎</span>
+      <span class="text-xl"><%= review.not_helpful_count %></span>
+    </div>
+  <% } %>
+
+  <button class="flex items-center gap-2 text-2xl transition hover:text-gray-300">
+    <span>💬</span>
+    <span class="text-xl">0</span>
+  </button>
+</div>
+            </div>
+          </div>
+        </article>
+      <% }) %>
+    </section>
+  </main>
+
+  <%- include("partials/footer") %>
+
+</body>
+</html>

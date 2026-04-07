@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <%- include("partials/head", { title: "Prihlásenie | FilmRate" }) %>
+</head>
+<body class="min-h-screen bg-[#05070d] text-white overflow-hidden">
+
+  <%- include("partials/navbar") %>
+
+  <main class="flex min-h-[calc(100vh-73px)] items-center justify-center px-4 py-4 sm:px-6 sm:py-6">
+    <section class="w-full max-w-[680px] rounded-[2.25rem] bg-[#07101d]/98 px-6 py-7 shadow-[0_18px_45px_rgba(0,0,0,0.42)] sm:px-8 sm:py-8 md:px-10 md:py-10">
+      <div class="absolute inset-0 -z-10">
+      <img
+        src="/images/hero-cinema.jpg"
+        alt="Kino"
+        class="h-full w-full object-cover"
+      />
+      <div class="absolute inset-0 bg-black/75"></div>
+    </div>
+
+      <div class="mx-auto max-w-[500px]">
+        <h1 class="text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl">
+          Vitaj späť v FilmRate
+        </h1>
+
+        <form method="POST" action="/login" class="mt-8 space-y-5 md:mt-10 md:space-y-6">
+          <div>
+            <label for="loginUsername" class="mb-2 block text-base font-medium text-white/90 md:text-lg">
+              Používateľské meno
+            </label>
+            <input
+              id="loginUsername"
+              name="username"
+              type="text"
+              placeholder="Zadaj používateľské meno"
+              class="w-full rounded-xl bg-[#232730] px-5 py-3 text-base text-white placeholder:text-gray-300/70 outline-none ring-1 ring-white/5 transition focus:ring-2 focus:ring-cyan-400/40 sm:text-lg md:py-4 md:text-xl"
+            />
+          </div>
+
+          <div>
+            <label for="loginPassword" class="mb-2 block text-base font-medium text-white/90 md:text-lg">
+              Heslo
+            </label>
+            <input
+              id="loginPassword"
+              name="password"
+              type="password"
+              placeholder="Zadaj heslo"
+              class="w-full rounded-xl bg-[#232730] px-5 py-3 text-base text-white placeholder:text-gray-300/70 outline-none ring-1 ring-white/5 transition focus:ring-2 focus:ring-cyan-400/40 sm:text-lg md:py-4 md:text-xl"
+            />
+          </div>
+
+          <div class="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
+            <label class="flex items-center gap-3 text-sm text-white/90 sm:text-base md:text-lg">
+              <input
+                type="checkbox"
+                name="remember"
+                class="h-4 w-4 rounded border-white/20 bg-transparent accent-[#738b58] md:h-5 md:w-5"
+              />
+              <span>Zapamätať si ma</span>
+            </label>
+
+            <a href="/register" class="text-sm text-[#b6a3ff] underline underline-offset-4 transition hover:text-[#c7b8ff] sm:text-base md:text-lg">
+              Zaregistrovať sa
+            </a>
+          </div>
+
+          <div class="pt-2 text-center md:pt-4">
+            <button
+              type="submit"
+              class="inline-flex min-w-48 items-center justify-center rounded-lg bg-[#738b58] px-6 py-3 text-lg font-semibold text-white transition hover:bg-[#829d64] sm:min-w-56 sm:text-xl md:px-8 md:py-4 md:text-2xl"
+            >
+              Prihlásiť sa
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+</body>
+</html>
