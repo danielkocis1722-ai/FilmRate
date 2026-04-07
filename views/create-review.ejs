@@ -27,35 +27,50 @@
 
         <form method="POST" action="/reviews/create" class="mt-10 space-y-8">
           <!-- Film select -->
-          <div>
-            <label for="movieId" class="mb-3 block text-lg font-medium text-white/90">
-              Film
-            </label>
+        <!-- Film search dropdown -->
+<div>
+  <label for="movieSearch" class="mb-3 block text-lg font-medium text-white/90">
+    Film
+  </label>
 
-            <div class="relative max-w-2xl">
-              <select
-                id="movieId"
-                name="movieId"
-                class="w-full appearance-none rounded-xl bg-[#232730] px-6 py-5 pr-14 text-xl text-white outline-none ring-1 ring-white/5 transition focus:ring-2 focus:ring-cyan-400/40"
-              >
-                <option value="">Vyber film</option>
+  <div class="relative max-w-2xl">
+    <input
+      id="movieSearch"
+      type="text"
+      autocomplete="off"
+      placeholder="Začni písať názov filmu..."
+      value="<%= selectedMovie ? `${selectedMovie.title}${selectedMovie.year ? ` (${selectedMovie.year})` : ""}` : "" %>"
+      class="w-full rounded-xl bg-[#232730] px-6 py-5 pr-14 text-xl text-white placeholder:text-gray-300/70 outline-none ring-1 ring-white/5 transition focus:ring-2 focus:ring-cyan-400/40"
+    />
 
-                <% movies.forEach(movie => { %>
-                  <option
-                    value="<%= movie.id %>"
-                    class="bg-[#232730] text-white"
-                    <%= selectedMovieId === movie.id ? "selected" : "" %>
-                  >
-                    <%= movie.title %>
-                  </option>
-                <% }) %>
-              </select>
+    <input
+      type="hidden"
+      id="movieId"
+      name="movieId"
+      value="<%= selectedMovie ? selectedMovie.id : "" %>"
+    />
 
-              <span class="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-white/70">
-                ˅
-              </span>
-            </div>
-          </div>
+    <button
+      type="button"
+      id="clearMovieBtn"
+      class="absolute right-4 top-1/2 -translate-y-1/2 text-xl text-white/60 transition hover:text-white"
+      aria-label="Vymazať výber filmu"
+    >
+      ×
+    </button>
+
+    <div
+      id="movieDropdown"
+      class="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-30 hidden overflow-hidden rounded-2xl border border-white/10 bg-[#232730] shadow-[0_10px_40px_rgba(0,0,0,0.45)]"
+    >
+      <div id="movieResults" class="max-h-80 overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <p class="mt-3 text-sm text-gray-400 sm:text-base">
+    Vyber film z výsledkov vyhľadávania.
+  </p>
+</div>
 
           <!-- Rating -->
           <div>
@@ -201,5 +216,111 @@
     </section>
   </main>
 
+
+  <script>
+  const movieSearchInput = document.getElementById("movieSearch");
+  const movieIdInput = document.getElementById("movieId");
+  const movieDropdown = document.getElementById("movieDropdown");
+  const movieResults = document.getElementById("movieResults");
+  const clearMovieBtn = document.getElementById("clearMovieBtn");
+
+  let debounceTimeout;
+
+  function renderMovies(movies) {
+    if (!movies.length) {
+      movieResults.innerHTML = `
+        <div class="px-5 py-4 text-base text-gray-300">
+          Nenašli sa žiadne filmy.
+        </div>
+      `;
+      movieDropdown.classList.remove("hidden");
+      return;
+    }
+
+    movieResults.innerHTML = movies
+      .map(
+        (movie) => `
+          <button
+            type="button"
+            class="movie-option flex w-full items-center justify-between px-5 py-4 text-left text-lg text-white transition hover:bg-white/10"
+            data-id="${movie.id}"
+            data-title="${movie.title}"
+            data-year="${movie.year || ""}"
+          >
+            <span>${movie.title}</span>
+            <span class="text-sm text-gray-400">${movie.year || ""}</span>
+          </button>
+        `
+      )
+      .join("");
+
+    movieDropdown.classList.remove("hidden");
+
+    document.querySelectorAll(".movie-option").forEach((button) => {
+      button.addEventListener("click", () => {
+        const id = button.dataset.id;
+        const title = button.dataset.title;
+        const year = button.dataset.year;
+
+        movieIdInput.value = id;
+        movieSearchInput.value = year ? `${title} (${year})` : title;
+        movieDropdown.classList.add("hidden");
+      });
+    });
+  }
+
+  async function searchMovies(query) {
+    try {
+      const response = await fetch(`/api/movies/search?q=${encodeURIComponent(query)}`);
+      const movies = await response.json();
+      renderMovies(movies);
+    } catch (error) {
+      movieResults.innerHTML = `
+        <div class="px-5 py-4 text-base text-red-300">
+          Chyba pri vyhľadávaní filmov.
+        </div>
+      `;
+      movieDropdown.classList.remove("hidden");
+    }
+  }
+
+  movieSearchInput.addEventListener("input", () => {
+    const query = movieSearchInput.value.trim();
+
+    movieIdInput.value = "";
+
+    clearTimeout(debounceTimeout);
+
+    if (query.length < 2) {
+      movieDropdown.classList.add("hidden");
+      movieResults.innerHTML = "";
+      return;
+    }
+
+    debounceTimeout = setTimeout(() => {
+      searchMovies(query);
+    }, 300);
+  });
+
+  movieSearchInput.addEventListener("focus", () => {
+    if (movieResults.innerHTML.trim() !== "") {
+      movieDropdown.classList.remove("hidden");
+    }
+  });
+
+  clearMovieBtn.addEventListener("click", () => {
+    movieSearchInput.value = "";
+    movieIdInput.value = "";
+    movieDropdown.classList.add("hidden");
+    movieResults.innerHTML = "";
+    movieSearchInput.focus();
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!movieSearchInput.closest(".relative").contains(event.target)) {
+      movieDropdown.classList.add("hidden");
+    }
+  });
+</script>
 </body>
 </html>

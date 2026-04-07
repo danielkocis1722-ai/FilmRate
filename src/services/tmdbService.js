@@ -49,20 +49,35 @@ function buildImageUrl(config, size, filePath) {
   return `${config.images.secure_base_url}${size}${filePath}`;
 }
 
-async function getMovieTitlesMap(movieIds) {
+async function getMoviesInfoMap(movieIds) {
   const uniqueIds = [...new Set(movieIds.filter(Boolean))];
+  const config = await getConfig();
 
   const results = await Promise.all(
     uniqueIds.map(async (id) => {
       try {
         const movie = await getMovieDetails(id);
-        return [id, movie.title || "Neznámy film"];
+        return [
+          id,
+          {
+            title: movie.title,
+            poster:
+              buildImageUrl(config, "w500", movie.poster_path) ||
+              "https://placehold.co/180x260?text=Poster",
+          },
+        ];
       } catch (error) {
         console.error(
           `TMDb title fetch error for movie ${id}:`,
           error.response?.data || error.message,
         );
-        return [id, "Neznámy film"];
+        return [
+          id,
+          {
+            title: "Neznámy film",
+            poster: "https://placehold.co/180x260?text=Poster",
+          },
+        ];
       }
     }),
   );
@@ -76,5 +91,5 @@ module.exports = {
   getMovieDetails,
   getMovieCredits,
   buildImageUrl,
-  getMovieTitlesMap,
+  getMoviesInfoMap,
 };

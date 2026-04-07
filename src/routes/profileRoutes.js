@@ -47,26 +47,29 @@ router.get("/profile", requireAuth, async (req, res) => {
     const reviews = reviewsResult.rows;
 
     const movieIds = reviews.map((review) => Number(review.tmdb_movie_id));
-    const movieTitlesMap = await tmdbService.getMovieTitlesMap(movieIds);
+    const moviesInfoMap = await tmdbService.getMoviesInfoMap(movieIds);
 
-    const reviewsWithMovieTitles = reviews.map((review) => ({
+    const reviewsWithMovieInfo = reviews.map((review) => ({
       ...review,
       movieTitle:
-        movieTitlesMap[Number(review.tmdb_movie_id)] || "Neznámy film",
+        moviesInfoMap[Number(review.tmdb_movie_id)]?.title || "Neznámy film",
+      moviePoster:
+        moviesInfoMap[Number(review.tmdb_movie_id)]?.poster ||
+        "https://placehold.co/180x260?text=Poster",
     }));
 
     const stats = {
-      reviewCount: reviewsWithMovieTitles.length,
+      reviewCount: reviewsWithMovieInfo.length,
       averageRating:
-        reviewsWithMovieTitles.length > 0
+        reviewsWithMovieInfo.length > 0
           ? (
-              reviewsWithMovieTitles.reduce(
+              reviewsWithMovieInfo.reduce(
                 (sum, review) => sum + Number(review.rating),
                 0,
-              ) / reviewsWithMovieTitles.length
+              ) / reviewsWithMovieInfo.length
             ).toFixed(1)
           : "0.0",
-      helpfulCount: reviewsWithMovieTitles.reduce(
+      helpfulCount: reviewsWithMovieInfo.reduce(
         (sum, review) => sum + Number(review.helpful_count || 0),
         0,
       ),
@@ -74,7 +77,7 @@ router.get("/profile", requireAuth, async (req, res) => {
 
     res.render("profile", {
       profileUser: user,
-      reviews: reviewsWithMovieTitles,
+      reviews: reviewsWithMovieInfo,
       stats,
     });
   } catch (err) {

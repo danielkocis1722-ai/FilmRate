@@ -28,16 +28,19 @@ router.get("/reviews", async (req, res) => {
     `);
     const reviews = result.rows;
     const movieIds = reviews.map((review) => Number(review.tmdb_movie_id));
-    const movieTitlesMap = await tmdbService.getMovieTitlesMap(movieIds);
+    const moviesInfoMap = await tmdbService.getMoviesInfoMap(movieIds);
 
-    const reviewsWithMovieTitles = reviews.map((review) => ({
+    const reviewsWithMovieInfo = reviews.map((review) => ({
       ...review,
       movieTitle:
-        movieTitlesMap[Number(review.tmdb_movie_id)] || "Neznámy film",
+        moviesInfoMap[Number(review.tmdb_movie_id)]?.title || "Neznámy film",
+      moviePoster:
+        moviesInfoMap[Number(review.tmdb_movie_id)]?.poster ||
+        "https://placehold.co/180x260?text=Poster",
     }));
 
     res.render("reviews", {
-      reviews: reviewsWithMovieTitles,
+      reviews: reviewsWithMovieInfo,
     });
   } catch (err) {
     console.error("Load reviews error:", err);
@@ -47,18 +50,56 @@ router.get("/reviews", async (req, res) => {
 
 router.get("/reviews/create", requireAuth, (req, res) => {
   res.render("create-review", {
-    movies,
-    selectedMovieId: null,
+    selectedMovie: null,
   });
 });
 
-router.get("/movies/:id/review/create", requireAuth, (req, res) => {
+router.get("/movies/:id/review/create", requireAuth, async (req, res) => {
   const selectedMovieId = Number(req.params.id);
 
-  res.render("create-review", {
-    movies,
-    selectedMovieId,
-  });
+  try {
+    const movie = await tmdbService.getMovieDetails(selectedMovieId);
+
+    res.render("create-review", {
+      selectedMovie: {
+        id: movie.id,
+        title: movie.title,
+        year: movie.release_date ? movie.release_date.slice(0, 4) : "",
+      },
+    });
+  } catch (err) {
+    console.error(
+      "Load selected movie error:",
+      err.response?.data || err.message,
+    );
+
+    res.render("create-review", {
+      selectedMovie: null,
+    });
+  }
+});
+
+router.get("/api/movies/search", requireAuth, async (req, res) => {
+  const query = req.query.q?.trim();
+
+  if (!query || query.length < 2) {
+    return res.json([]);
+  }
+
+  try {
+    const data = await tmdbService.searchMovies(query);
+
+    const movies = data.results.slice(0, 8).map((movie) => ({
+      id: movie.id,
+      title: movie.title,
+      year: movie.release_date ? movie.release_date.slice(0, 4) : "",
+    }));
+
+    res.json(movies);
+  } catch (err) {
+    console.error("TMDb search error:", err.response?.data || err.message);
+    res.status(500).json({ error: "Chyba pri vyhľadávaní filmov." });
+  }
 });
 
 router.post("/reviews/create", requireAuth, async (req, res) => {
