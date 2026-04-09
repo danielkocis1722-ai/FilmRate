@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <%- include("partials/head", { title: "Upraviť profil | FilmRate" }) %>
+</head>
+<body class="min-h-screen bg-[#05070d] text-white">
+
+  <%- include("partials/navbar") %>
+
+  <main class="mx-auto max-w-5xl px-6 pb-20 pt-14 sm:pt-20">
+    <section>
+      <h1 class="max-w-4xl text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
+        Uprav si profil.
+      </h1>
+
+      <p class="mt-5 max-w-3xl text-lg leading-8 text-gray-300 sm:text-2xl sm:leading-9">
+        Tu si môžeš upraviť základné informácie o svojom profile.
+      </p>
+    </section>
+
+    <section class="mt-12 rounded-4xl bg-[#171c29] p-6 shadow-[0_10px_40px_rgba(0,0,0,0.35)] sm:p-8 lg:p-10">
+   <form method="POST" action="/profile/edit" enctype="multipart/form-data" class="space-y-8">
+       <div>
+  <label for="avatar" class="mb-3 block text-lg font-medium text-white/90">
+    Profilový obrázok
+  </label>
+
+  <div class="flex flex-col gap-5 sm:flex-row sm:items-center">
+    <img
+      src="<%= profileUser.avatar_url || 'https://placehold.co/120x120?text=Avatar' %>"
+      alt="Aktuálny avatar používateľa <%= profileUser.username %>"
+      class="h-28 w-28 rounded-full object-cover ring-4 ring-white/10"
+    />
+
+    <div class="flex-1">
+      <input
+        id="avatar"
+        name="avatar"
+        type="file"
+        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+        class="block w-full rounded-xl bg-[#232730] px-4 py-4 text-base text-white file:mr-4 file:rounded-lg file:border-0 file:bg-[#738b58] file:px-4 file:py-2 file:text-white hover:file:bg-[#829d64]"
+      />
+      <p class="mt-3 text-sm text-gray-400 sm:text-base">
+        Povolené formáty: JPG, PNG, WEBP. Maximálna veľkosť 2 MB.
+      </p>
+    </div>
+  </div>
+</div>
+
+        <div>
+          <label for="favoriteGenre" class="mb-3 block text-lg font-medium text-white/90">
+            Obľúbený žáner
+          </label>
+
+          <div class="relative max-w-2xl">
+            <select
+              id="favoriteGenre"
+              name="favoriteGenre"
+              class="w-full appearance-none rounded-xl bg-[#232730] px-6 py-5 pr-14 text-xl text-white outline-none ring-1 ring-white/5 transition focus:ring-2 focus:ring-cyan-400/40"
+            >
+              <option value="">Vyber obľúbený žáner</option>
+              <option value="Action" <%= profileUser.favorite_genre === "Action" ? "selected" : "" %>>Action</option>
+              <option value="Adventure" <%= profileUser.favorite_genre === "Adventure" ? "selected" : "" %>>Adventure</option>
+              <option value="Animation" <%= profileUser.favorite_genre === "Animation" ? "selected" : "" %>>Animation</option>
+              <option value="Comedy" <%= profileUser.favorite_genre === "Comedy" ? "selected" : "" %>>Comedy</option>
+              <option value="Crime" <%= profileUser.favorite_genre === "Crime" ? "selected" : "" %>>Crime</option>
+              <option value="Drama" <%= profileUser.favorite_genre === "Drama" ? "selected" : "" %>>Drama</option>
+              <option value="Fantasy" <%= profileUser.favorite_genre === "Fantasy" ? "selected" : "" %>>Fantasy</option>
+              <option value="Horror" <%= profileUser.favorite_genre === "Horror" ? "selected" : "" %>>Horror</option>
+              <option value="Mystery" <%= profileUser.favorite_genre === "Mystery" ? "selected" : "" %>>Mystery</option>
+              <option value="Romance" <%= profileUser.favorite_genre === "Romance" ? "selected" : "" %>>Romance</option>
+              <option value="Sci-Fi" <%= profileUser.favorite_genre === "Sci-Fi" ? "selected" : "" %>>Sci-Fi</option>
+              <option value="Thriller" <%= profileUser.favorite_genre === "Thriller" ? "selected" : "" %>>Thriller</option>
+            </select>
+
+            <span class="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-white/70">
+              ˅
+            </span>
+          </div>
+        </div>
+
+        <div>
+          <label for="bio" class="mb-3 block text-lg font-medium text-white/90">
+            Bio
+          </label>
+          <textarea
+            id="bio"
+            name="bio"
+            rows="6"
+            placeholder="Napíš niečo o sebe..."
+            class="w-full resize-none rounded-xl bg-[#232730] px-6 py-5 text-lg text-white placeholder:text-gray-300/70 outline-none ring-1 ring-white/5 transition focus:ring-2 focus:ring-cyan-400/40 sm:text-xl"
+          ><%= profileUser.bio || "" %></textarea>
+        </div>
+
+        <div class="flex flex-col gap-4 pt-4 sm:flex-row">
+          <button
+            type="submit"
+            class="inline-flex items-center justify-center rounded-lg bg-[#738b58] px-8 py-4 text-xl font-semibold text-white transition hover:bg-[#829d64]"
+          >
+            Uložiť zmeny
+          </button>
+
+          <a
+            href="/profile"
+            class="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/5 px-8 py-4 text-xl font-medium text-white transition hover:bg-white/10"
+          >
+            Zrušiť
+          </a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <%- include("partials/footer") %>
+
+</body>
+</html>

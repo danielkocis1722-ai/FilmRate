@@ -50,13 +50,14 @@ router.get("/movies/:id", async (req, res) => {
           reviews.contains_spoilers,
           reviews.created_at,
           users.username,
+          users.avatar_url,
           COUNT(CASE WHEN review_votes.vote_type = 'helpful' THEN 1 END) AS helpful_count,
           COUNT(CASE WHEN review_votes.vote_type = 'not_helpful' THEN 1 END) AS not_helpful_count
         FROM reviews
         JOIN users ON reviews.user_id = users.id
         LEFT JOIN review_votes ON reviews.id = review_votes.review_id
         WHERE reviews.tmdb_movie_id = $1
-        GROUP BY reviews.id, users.username
+        GROUP BY reviews.id, users.username, users.avatar_url
         ORDER BY reviews.created_at DESC
         `,
         [movieId],

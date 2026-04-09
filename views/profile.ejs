@@ -23,10 +23,10 @@
         <div class="flex flex-col gap-6 sm:flex-row sm:items-start">
           <div class="shrink-0">
             <img
-              src="https://placehold.co/170x170?text=Avatar"
-              alt="Placeholder avatar používateľa <%= profileUser.username %>"
-              class="h-32 w-32 rounded-full object-cover ring-4 ring-white/10 sm:h-40 sm:w-40"
-            />
+  src="<%= profileUser.avatar_url || 'https://placehold.co/170x170?text=Avatar' %>"
+  alt="Avatar používateľa <%= profileUser.username %>"
+  class="h-32 w-32 rounded-full object-cover ring-4 ring-white/10 sm:h-40 sm:w-40"
+/>
           </div>
 
           <div class="pt-1">
@@ -40,41 +40,59 @@
               </div>
             </div>
 
-            <p class="mt-5 max-w-2xl text-lg leading-8 text-gray-200 sm:text-2xl sm:leading-9">
-              Toto je tvoj profil vo FilmRate.
-            </p>
+           <p class="mt-5 max-w-2xl text-lg leading-8 text-gray-200 sm:text-2xl sm:leading-9">
+  <% if (profileUser.bio) { %>
+    <%= profileUser.bio %>
+  <% } else if (isOwnProfile) { %>
+    Toto je tvoj profil vo FilmRate.
+  <% } else { %>
+    Profil používateľa <%= profileUser.username %> vo FilmRate.
+  <% } %>
+</p>
 
-            <div class="mt-8 flex flex-wrap gap-4">
-              <button
-                type="button"
-                class="inline-flex items-center justify-center rounded-lg bg-[#738b58] px-8 py-4 text-xl font-semibold text-white transition hover:bg-[#829d64]"
-              >
-                Upraviť profil
-              </button>
+          <div class="mt-8 flex flex-wrap gap-4">
+  <% if (isOwnProfile) { %>
+ <a
+  href="/profile/edit"
+  class="inline-flex items-center justify-center rounded-lg bg-[#738b58] px-8 py-4 text-xl font-semibold text-white transition hover:bg-[#829d64]"
+>
+  Upraviť profil
+</a>
+  <% } %>
 
-              <a
-                href="#reviews"
-                class="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/5 px-8 py-4 text-xl font-medium text-white transition hover:bg-white/10"
-              >
-                Moje recenzie
-              </a>
-            </div>
+  <a
+    href="#reviews"
+    class="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/5 px-8 py-4 text-xl font-medium text-white transition hover:bg-white/10"
+  >
+    <% if (isOwnProfile) { %>
+      Moje recenzie
+    <% } else { %>
+      Recenzie používateľa
+    <% } %>
+  </a>
+</div>
           </div>
         </div>
 
         <aside class="w-full max-w-90 rounded-4xl bg-[#171c29]/90 p-6 shadow-[0_10px_40px_rgba(0,0,0,0.35)] backdrop-blur-sm">
           <h2 class="text-2xl font-bold">O používateľovi</h2>
 
-          <div class="mt-6 space-y-4 text-lg text-gray-300">
+          <div class="mt-6 space-y-4 text-lg text-gray-300"><div class="flex items-center justify-between gap-4">
+  <span>Obľúbený žáner</span>
+  <span class="font-medium text-white">
+    <%= profileUser.favorite_genre || 'Neuvedené' %>
+  </span>
+</div>
             <div class="flex items-center justify-between gap-4">
               <span>Používateľské meno</span>
               <span class="font-medium text-white"><%= profileUser.username %></span>
             </div>
-
-            <div class="flex items-center justify-between gap-4">
-              <span>E-mail</span>
-              <span class="font-medium text-white"><%= profileUser.email %></span>
-            </div>
+<% if (isOwnProfile) { %>
+  <div class="flex items-center justify-between gap-4">
+    <span>E-mail</span>
+    <span class="font-medium text-white"><%= profileUser.email %></span>
+  </div>
+<% } %>
 
             <div class="flex items-center justify-between gap-4">
               <span>Rola</span>
@@ -151,7 +169,7 @@
       <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div class="flex items-center gap-3">
           <img
-            src="https://placehold.co/48x48?text=AV"
+            src="<%= review.avatar_url || 'https://placehold.co/48x48?text=AV' %>"
             alt="Placeholder avatar používateľa <%= review.username %>"
             class="h-12 w-12 rounded-full object-cover"
           />
