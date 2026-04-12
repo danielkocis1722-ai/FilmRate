@@ -6,11 +6,50 @@ const pool = require("../config/db");
 router.get("/movies", async (req, res) => {
   try {
     const search = req.query.q?.trim() || "";
+    const genre = req.query.genre || "";
+    const minRating = req.query.minRating || "";
+    const runtime = req.query.runtime || "";
+    const sort = req.query.sort || "popularity.desc";
+    const year = req.query.year?.trim() || "";
 
-    const [config, data] = await Promise.all([
+    const [config, genresData] = await Promise.all([
       tmdbService.getConfig(),
-      search ? tmdbService.searchMovies(search) : tmdbService.discoverMovies(),
+      tmdbService.getMovieGenres(),
     ]);
+
+    let data;
+
+    if (search) {
+      data = await tmdbService.searchMovies(search);
+    } else {
+      const discoverParams = {
+        sort_by: sort,
+      };
+
+      if (genre) {
+        discoverParams.with_genres = genre;
+      }
+
+      if (minRating) {
+        discoverParams["vote_average.gte"] = Number(minRating);
+        discoverParams["vote_count.gte"] = 200;
+      }
+
+      if (year) {
+        discoverParams.year = Number(year);
+      }
+
+      if (runtime === "short") {
+        discoverParams["with_runtime.lte"] = 90;
+      } else if (runtime === "medium") {
+        discoverParams["with_runtime.gte"] = 91;
+        discoverParams["with_runtime.lte"] = 120;
+      } else if (runtime === "long") {
+        discoverParams["with_runtime.gte"] = 121;
+      }
+
+      data = await tmdbService.discoverMovies(discoverParams);
+    }
 
     const movies = data.results.map((movie) => ({
       id: movie.id,
@@ -23,7 +62,18 @@ router.get("/movies", async (req, res) => {
       overview: movie.overview,
     }));
 
-    res.render("movies", { movies, search });
+    res.render("movies", {
+      movies,
+      search,
+      genres: genresData.genres || [],
+      filters: {
+        genre,
+        minRating,
+        runtime,
+        sort,
+        year,
+      },
+    });
   } catch (err) {
     console.error("TMDb movies error:", err.response?.data || err.message);
     res.status(500).send("Chyba pri načítaní filmov z TMDb.");

@@ -25,10 +25,11 @@ async function searchMovies(query) {
   });
 }
 
-async function discoverMovies() {
+async function discoverMovies(params = {}) {
   return tmdbGet("/discover/movie", {
     language: "sk-SK",
     sort_by: "popularity.desc",
+    ...params,
   });
 }
 
@@ -83,6 +84,11 @@ async function getMoviesInfoMap(movieIds) {
   );
   return Object.fromEntries(results);
 }
+async function getMovieGenres() {
+  return tmdbGet("/genre/movie/list", {
+    language: "sk-SK",
+  });
+}
 
 module.exports = {
   getConfig,
@@ -92,4 +98,5 @@ module.exports = {
   getMovieCredits,
   buildImageUrl,
   getMoviesInfoMap,
+  getMovieGenres,
 };
