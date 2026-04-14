@@ -3,6 +3,7 @@
 <head>
   <%- include("partials/head", { title: "Filmy | FilmRate" }) %>
 </head>
+
 <body class="min-h-screen bg-[#05070d] text-white">
 
   <%- include("partials/navbar") %>
@@ -140,8 +141,8 @@
     </section>
 
     <!-- Movies list -->
-    <section class="mt-12 space-y-8">
-    <% movies.forEach(movie => { %>
+<section id="movies-list" class="mt-12 space-y-8">
+  <% movies.forEach(movie => { %>
   <article class="overflow-hidden rounded-4xl bg-[#171c29] shadow-[0_10px_40px_rgba(0,0,0,0.35)]">
     <div class="flex flex-col md:flex-row">
       <div class="w-full md:w-55">
@@ -162,8 +163,21 @@
           </div>
 
           <p class="mt-6 max-w-3xl text-base leading-7 text-gray-200 sm:text-2xl sm:leading-9">
-            <%= movie.overview || "Bez popisu." %>
-          </p>
+  <%= movie.overview
+    ? (movie.overview.length > 120
+        ? movie.overview.slice(0, 120) + "..."
+        : movie.overview)
+    : "Bez popisu." %>
+</p>
+
+<% if (movie.overview) { %>
+  <a
+    href="/movies/<%= movie.id %>"
+    class="mt-4 inline-block text-lg font-medium text-violet-400 transition hover:text-violet-300"
+  >
+    Viac...
+  </a>
+<% } %>
         </div>
 
         <div class="hidden w-px bg-white/40 md:block"></div>
@@ -180,25 +194,141 @@
     <!-- Load more -->
 <% if (currentPage < totalPages) { %>
   <section class="mt-14 flex justify-center">
-    <a
-      href="/movies?<%= new URLSearchParams({
-        q: search || '',
-        genre: filters.genre || '',
-        minRating: filters.minRating || '',
-        runtime: filters.runtime || '',
-        sort: filters.sort || 'popularity.desc',
-        year: filters.year || '',
-        page: String(currentPage + 1)
-      }).toString() %>"
+    <button
+      id="load-more-btn"
+      type="button"
+      data-current-page="<%= currentPage %>"
+      data-total-pages="<%= totalPages %>"
+      data-q="<%= search || '' %>"
+      data-genre="<%= filters.genre || '' %>"
+      data-min-rating="<%= filters.minRating || '' %>"
+      data-runtime="<%= filters.runtime || '' %>"
+      data-sort="<%= filters.sort || 'popularity.desc' %>"
+      data-year="<%= filters.year || '' %>"
       class="rounded-full border border-white px-10 py-4 text-xl font-medium text-white transition hover:bg-white hover:text-black sm:px-20"
     >
       Načítať viac ↓
-    </a>
+    </button>
   </section>
 <% } %>
   </main>
 
   <%- include("partials/footer") %>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script>
+  const loadMoreBtn = document.getElementById("load-more-btn");
+  const moviesList = document.getElementById("movies-list");
+
+  function createMovieCard(movie) {
+    return `
+      <article class="overflow-hidden rounded-4xl bg-[#171c29] shadow-[0_10px_40px_rgba(0,0,0,0.35)]">
+        <div class="flex flex-col md:flex-row">
+          <div class="w-full md:w-55">
+            <img
+              src="${movie.poster || "https://placehold.co/220x300?text=Poster"}"
+              alt="Poster filmu ${movie.title}"
+              class="h-full w-full object-cover"
+            />
+          </div>
+
+          <div class="flex flex-1 flex-col justify-between gap-6 p-6 md:flex-row md:items-stretch md:p-8">
+            <div class="flex-1">
+              <h2 class="text-2xl font-bold sm:text-4xl">${movie.title}</h2>
+
+              <div class="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-base text-gray-300 sm:text-xl">
+                <span>${movie.releaseDate || "—"}</span>
+                <span class="text-yellow-400">⭐ ${Number(movie.rating || 0).toFixed(1)}/10</span>
+              </div>
+
+           <p class="mt-6 max-w-3xl text-base leading-7 text-gray-200 sm:text-2xl sm:leading-9">
+            ${movie.overview ? (movie.overview.length > 120 ? movie.overview.slice(0, 120) + "..." : movie.overview): "Bez popisu."}
+</p>
+
+<a
+  href="/movies/${movie.id}"
+  class="mt-4 inline-block text-lg font-medium text-violet-400 transition hover:text-violet-300"
+>
+  Viac...
+</a>
+            </div>
+            <div class="hidden w-px bg-white/40 md:block"></div>
+
+            <div class="flex items-center justify-end md:min-w-22.5 md:justify-center">
+              <a href="/movies/${movie.id}" class="text-5xl text-white transition hover:translate-x-1">→</a>
+            </div>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  async function loadMoreMovies() {
+    if (!loadMoreBtn) return;
+
+    const currentPage = Number(loadMoreBtn.dataset.currentPage);
+    const totalPages = Number(loadMoreBtn.dataset.totalPages);
+
+    if (currentPage >= totalPages) {
+      loadMoreBtn.remove();
+      return;
+    }
+
+    loadMoreBtn.disabled = true;
+    loadMoreBtn.textContent = "Načítavam...";
+
+    const params = new URLSearchParams({
+      q: loadMoreBtn.dataset.q || "",
+      genre: loadMoreBtn.dataset.genre || "",
+      minRating: loadMoreBtn.dataset.minRating || "",
+      runtime: loadMoreBtn.dataset.runtime || "",
+      sort: loadMoreBtn.dataset.sort || "popularity.desc",
+      year: loadMoreBtn.dataset.year || "",
+      page: String(currentPage + 1),
+    });
+
+    try {
+      const response = await fetch(`/api/movies?${params.toString()}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Chyba pri načítaní filmov.");
+      }
+
+      const html = data.movies.map(createMovieCard).join("");
+      moviesList.insertAdjacentHTML("beforeend", html);
+
+      loadMoreBtn.dataset.currentPage = String(data.currentPage);
+
+      if (data.currentPage >= data.totalPages) {
+        loadMoreBtn.remove();
+      } else {
+        loadMoreBtn.disabled = false;
+        loadMoreBtn.textContent = "Načítať viac ↓";
+      }
+    } catch (error) {
+      console.error(error);
+      loadMoreBtn.disabled = false;
+      loadMoreBtn.textContent = "Skús znova";
+    }
+  }
+
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener("click", loadMoreMovies);
+  }
+</script>
 
 </body>
 </html>

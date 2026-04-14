@@ -44,9 +44,26 @@
               </div>
 
               <div class="max-w-3xl pt-1">
-                <p class="text-lg leading-8 text-gray-200 sm:text-2xl sm:leading-10">
-                  <%= movie.description %>
-                </p>
+               <p
+  id="movie-description"
+  class="mt-6 max-w-3xl text-base leading-7 text-gray-200 sm:text-2xl sm:leading-9"
+  data-full="<%= movie.description || '' %>"
+>
+  <%= movie.description
+    ? (movie.description.length > 250
+        ? movie.description.slice(0, 250) + "..."
+        : movie.description)
+    : "Bez popisu." %>
+</p>
+
+<% if (movie.description && movie.description.length > 250) { %>
+  <button
+    id="toggle-description"
+    class="mt-4 text-lg font-medium text-violet-400 transition hover:text-violet-300"
+  >
+    Zobraziť viac
+  </button>
+<% } %>
               </div>
             </div>
           </div>
@@ -214,4 +231,25 @@
   <%- include("partials/footer") %>
 
 </body>
+
+<script>
+  const desc = document.getElementById("movie-description");
+  const btn = document.getElementById("toggle-description");
+
+  if (desc && btn) {
+    const fullText = desc.dataset.full;
+    const shortText = fullText.length > 250
+      ? fullText.slice(0, 250) + "..."
+      : fullText;
+
+    let expanded = false;
+
+    btn.addEventListener("click", () => {
+      expanded = !expanded;
+
+      desc.textContent = expanded ? fullText : shortText;
+      btn.textContent = expanded ? "Zobraziť menej" : "Zobraziť viac";
+    });
+  }
+</script>
 </html>

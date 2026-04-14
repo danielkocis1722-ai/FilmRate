@@ -3,84 +3,105 @@ const router = express.Router();
 const tmdbService = require("../services/tmdbService");
 const pool = require("../config/db");
 
-router.get("/movies", async (req, res) => {
-  try {
-    const search = req.query.q?.trim() || "";
-    const genre = req.query.genre || "";
-    const minRating = req.query.minRating || "";
-    const runtime = req.query.runtime || "";
-    const sort = req.query.sort || "popularity.desc";
-    const year = req.query.year?.trim() || "";
-    const page = Number(req.query.page) || 1;
+async function loadMoviesPage(query) {
+  const search = query.q?.trim() || "";
+  const genre = query.genre || "";
+  const minRating = query.minRating || "";
+  const runtime = query.runtime || "";
+  const sort = query.sort || "popularity.desc";
+  const year = query.year?.trim() || "";
+  const page = Number(query.page) || 1;
 
-    const [config, genresData] = await Promise.all([
-      tmdbService.getConfig(),
-      tmdbService.getMovieGenres(),
-    ]);
+  const [config, genresData] = await Promise.all([
+    tmdbService.getConfig(),
+    tmdbService.getMovieGenres(),
+  ]);
 
-    let data;
+  let data;
 
-    if (search) {
-      data = await tmdbService.searchMovies(search);
-    } else {
-      const discoverParams = {
-        sort_by: sort,
-        page,
-      };
+  if (search) {
+    data = await tmdbService.searchMovies(search, page);
+  } else {
+    const discoverParams = {
+      sort_by: sort,
+      page,
+    };
 
-      if (genre) {
-        discoverParams.with_genres = genre;
-      }
-
-      if (minRating) {
-        discoverParams["vote_average.gte"] = Number(minRating);
-        discoverParams["vote_count.gte"] = 200;
-      }
-
-      if (year) {
-        discoverParams.primary_release_year = Number(year);
-      }
-
-      if (runtime === "short") {
-        discoverParams["with_runtime.lte"] = 90;
-      } else if (runtime === "medium") {
-        discoverParams["with_runtime.gte"] = 91;
-        discoverParams["with_runtime.lte"] = 120;
-      } else if (runtime === "long") {
-        discoverParams["with_runtime.gte"] = 121;
-      }
-
-      data = await tmdbService.discoverMovies(discoverParams);
+    if (genre) {
+      discoverParams.with_genres = genre;
     }
 
-    const movies = data.results.map((movie) => ({
-      id: movie.id,
-      title: movie.title,
-      releaseDate: movie.release_date,
-      rating: movie.vote_average,
-      poster:
-        tmdbService.buildImageUrl(config, "w500", movie.poster_path) ||
-        "https://placehold.co/220x300?text=Poster",
-      overview: movie.overview,
-    }));
+    if (minRating) {
+      discoverParams["vote_average.gte"] = Number(minRating);
+      discoverParams["vote_count.gte"] = 200;
+    }
 
-    res.render("movies", {
-      movies,
-      search,
-      genres: genresData.genres || [],
-      filters: {
-        genre,
-        minRating,
-        runtime,
-        sort,
-        year,
-      },
-      currentPage: data.page || page,
-      totalPages: data.total_pages || 1,
-    });
+    if (year) {
+      discoverParams.primary_release_year = Number(year);
+    }
+
+    if (runtime === "short") {
+      discoverParams["with_runtime.lte"] = 90;
+    } else if (runtime === "medium") {
+      discoverParams["with_runtime.gte"] = 91;
+      discoverParams["with_runtime.lte"] = 120;
+    } else if (runtime === "long") {
+      discoverParams["with_runtime.gte"] = 121;
+    }
+
+    data = await tmdbService.discoverMovies(discoverParams);
+  }
+
+  const movies = data.results.map((movie) => ({
+    id: movie.id,
+    title: movie.title,
+    releaseDate: movie.release_date,
+    rating: movie.vote_average,
+    poster:
+      tmdbService.buildImageUrl(config, "w500", movie.poster_path) ||
+      "https://placehold.co/220x300?text=Poster",
+    overview: movie.overview,
+  }));
+
+  return {
+    movies,
+    search,
+    genres: genresData.genres || [],
+    filters: {
+      genre,
+      minRating,
+      runtime,
+      sort,
+      year,
+    },
+    currentPage: data.page || page,
+    totalPages: data.total_pages || 1,
+  };
+}
+
+router.get("/movies", async (req, res) => {
+  try {
+    const moviesPage = await loadMoviesPage(req.query);
+
+    res.render("movies", moviesPage);
   } catch (err) {
     console.error("TMDb movies error:", err.response?.data || err.message);
     res.status(500).send("Chyba pri načítaní filmov z TMDb.");
+  }
+});
+
+router.get("/api/movies", async (req, res) => {
+  try {
+    const moviesPage = await loadMoviesPage(req.query);
+
+    res.json({
+      movies: moviesPage.movies,
+      currentPage: moviesPage.currentPage,
+      totalPages: moviesPage.totalPages,
+    });
+  } catch (err) {
+    console.error("TMDb movies API error:", err.response?.data || err.message);
+    res.status(500).json({ error: "Chyba pri načítaní filmov." });
   }
 });
 
