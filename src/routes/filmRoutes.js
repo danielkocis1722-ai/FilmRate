@@ -36,7 +36,7 @@ router.get("/movies", async (req, res) => {
       }
 
       if (year) {
-        discoverParams.year = Number(year);
+        discoverParams.primary_release_year = Number(year);
       }
 
       if (runtime === "short") {

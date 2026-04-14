@@ -9,6 +9,7 @@ const authRoutes = require("./src/routes/authRoutes");
 const reviewRoutes = require("./src/routes/reviewRoutes");
 const profileRoutes = require("./src/routes/profileRoutes");
 const filmRoutes = require("./src/routes/filmRoutes");
+const homeRoutes = require("./src/routes/homeRoutes");
 
 const app = express();
 
@@ -39,10 +40,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/", (req, res) => {
-  res.render("index", { user: req.session.user || null });
-});
-
 app.use("/", profileRoutes);
 
 app.use("/", reviewRoutes);
@@ -50,6 +47,8 @@ app.use("/", reviewRoutes);
 app.use("/", authRoutes);
 
 app.use("/", filmRoutes);
+
+app.use("/", homeRoutes);
 
 pool
   .connect()

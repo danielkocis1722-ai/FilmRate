@@ -15,71 +15,126 @@
       </h1>
 
    <!-- Search + filters -->
-<div class="mt-10 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-  <div class="w-full lg:max-w-md">
-  <form method="GET" action="/movies" class="w-full lg:max-w-md">
-  <div class="relative">
-    <span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
-      🔍
-    </span>
-    <input
-      type="text"
-      name="q"
-      value="<%= typeof search !== 'undefined' ? search : '' %>"
-      placeholder="Hľadaj film..."
-      class="w-full rounded-xl border border-white/10 bg-white px-11 py-3 text-lg text-black outline-none transition focus:border-cyan-400"
-    />
+<form method="GET" action="/movies" class="mt-10">
+  <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+    <div class="flex flex-col gap-5 lg:flex-row lg:flex-wrap lg:items-center">
+      <div class="w-full lg:min-w-90">
+        <div class="relative">
+          <span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
+            🔍
+          </span>
+          <input
+            type="text"
+            name="q"
+            value="<%= search || '' %>"
+            placeholder="Hľadaj film..."
+            class="w-full rounded-xl border border-white/10 bg-white px-11 py-3 text-lg text-black outline-none transition focus:border-cyan-400"
+          />
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
+        <span class="text-2xl font-semibold text-white/90">Filtrovať:</span>
+
+        <div class="relative">
+          <select
+            name="genre"
+            class="appearance-none rounded-full border border-white/40 bg-transparent px-6 py-3 pr-12 text-white outline-none"
+          >
+            <option value="" class="bg-[#111522] text-white">Žáner</option>
+            <% genres.forEach(genreItem => { %>
+              <option
+                value="<%= genreItem.id %>"
+                class="bg-[#111522] text-white"
+                <%= filters.genre == genreItem.id ? "selected" : "" %>
+              >
+                <%= genreItem.name %>
+              </option>
+            <% }) %>
+          </select>
+          <span class="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-white/70">
+            ˅
+          </span>
+        </div>
+
+        <div class="relative">
+          <select
+            name="minRating"
+            class="appearance-none rounded-full border border-white/40 bg-transparent px-6 py-3 pr-12 text-white outline-none"
+          >
+            <option value="" class="bg-[#111522] text-white">Hodnotenie</option>
+            <option value="5" class="bg-[#111522] text-white" <%= filters.minRating === "5" ? "selected" : "" %>>5+</option>
+            <option value="6" class="bg-[#111522] text-white" <%= filters.minRating === "6" ? "selected" : "" %>>6+</option>
+            <option value="7" class="bg-[#111522] text-white" <%= filters.minRating === "7" ? "selected" : "" %>>7+</option>
+            <option value="8" class="bg-[#111522] text-white" <%= filters.minRating === "8" ? "selected" : "" %>>8+</option>
+            <option value="9" class="bg-[#111522] text-white" <%= filters.minRating === "9" ? "selected" : "" %>>9+</option>
+          </select>
+          <span class="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-white/70">
+            ˅
+          </span>
+        </div>
+
+        <div class="relative">
+          <select
+            name="runtime"
+            class="appearance-none rounded-full border border-white/40 bg-transparent px-6 py-3 pr-12 text-white outline-none"
+          >
+            <option value="" class="bg-[#111522] text-white">Dĺžka</option>
+            <option value="short" class="bg-[#111522] text-white" <%= filters.runtime === "short" ? "selected" : "" %>>Do 90 min</option>
+            <option value="medium" class="bg-[#111522] text-white" <%= filters.runtime === "medium" ? "selected" : "" %>>91–120 min</option>
+            <option value="long" class="bg-[#111522] text-white" <%= filters.runtime === "long" ? "selected" : "" %>>121+ min</option>
+          </select>
+          <span class="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-white/70">
+            ˅
+          </span>
+        </div>
+
+        <div class="relative">
+          <select
+            name="sort"
+            class="appearance-none rounded-full border border-white/40 bg-transparent px-6 py-3 pr-12 text-white outline-none"
+          >
+            <option value="popularity.desc" class="bg-[#111522] text-white" <%= filters.sort === "popularity.desc" ? "selected" : "" %>>Popularita ↓</option>
+            <option value="popularity.asc" class="bg-[#111522] text-white" <%= filters.sort === "popularity.asc" ? "selected" : "" %>>Popularita ↑</option>
+            <option value="primary_release_date.desc" class="bg-[#111522] text-white" <%= filters.sort === "primary_release_date.desc" ? "selected" : "" %>>Najnovšie</option>
+            <option value="primary_release_date.asc" class="bg-[#111522] text-white" <%= filters.sort === "primary_release_date.asc" ? "selected" : "" %>>Najstaršie</option>
+            <option value="vote_average.desc" class="bg-[#111522] text-white" <%= filters.sort === "vote_average.desc" ? "selected" : "" %>>Rating ↓</option>
+            <option value="vote_average.asc" class="bg-[#111522] text-white" <%= filters.sort === "vote_average.asc" ? "selected" : "" %>>Rating ↑</option>
+          </select>
+          <span class="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-white/70">
+            ˅
+          </span>
+        </div>
+
+        <div class="w-full sm:w-auto">
+          <input
+            type="number"
+            name="year"
+            min="1900"
+            max="2100"
+            value="<%= filters.year || '' %>"
+            placeholder="Rok"
+            class="w-full rounded-full border border-white/40 bg-transparent px-6 py-3 text-white outline-none placeholder:text-white/60 sm:w-32"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="inline-flex items-center justify-center rounded-lg bg-[#00c950]/90 px-6 py-3 text-lg font-semibold text-white transition hover:bg-[#00c950]/80"
+        >
+          Použiť filtre
+        </button>
+
+        <a
+          href="/movies"
+          class="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-lg font-medium text-white transition hover:bg-white/10"
+        >
+          Reset
+        </a>
+      </div>
+    </div>
   </div>
 </form>
-  </div>
-
-  <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center lg:justify-end">
-    <span class="text-2xl font-semibold text-white/90">Filtrovať:</span>
-
-    <div class="relative">
-      <select class="appearance-none rounded-full border border-white/40 bg-transparent px-6 py-3 pr-12 text-white outline-none">
-        <option class="bg-[#111522] text-white">Žáner</option>
-        <option class="bg-[#111522] text-white">Drama</option>
-        <option class="bg-[#111522] text-white">Sci-fi</option>
-        <option class="bg-[#111522] text-white">Thriller</option>
-      </select>
-      <span class="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-white/70">
-        ˅
-      </span>
-    </div>
-
-    <div class="relative">
-      <select class="appearance-none rounded-full border border-white/40 bg-transparent px-6 py-3 pr-12 text-white outline-none">
-        <option class="bg-[#111522] text-white">Hodnotenie</option>
-        <option class="bg-[#111522] text-white">Najlepšie</option>
-        <option class="bg-[#111522] text-white">Najhoršie</option>
-      </select>
-      <span class="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-white/70">
-        ˅
-      </span>
-    </div>
-
-    <div class="relative">
-      <select class="appearance-none rounded-full border border-white/40 bg-transparent px-6 py-3 pr-12 text-white outline-none">
-        <option class="bg-[#111522] text-white">Dĺžka</option>
-        <option class="bg-[#111522] text-white">Do 90 min</option>
-        <option class="bg-[#111522] text-white">90–120 min</option>
-        <option class="bg-[#111522] text-white">120+ min</option>
-      </select>
-      <span class="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-white/70">
-        ˅
-      </span>
-    </div>
-
-    <button
-      type="button"
-      class="flex h-12 w-12 items-center justify-center rounded-full border border-white/40 text-2xl text-white transition hover:bg-white/10"
-      aria-label="Ďalšie filtre"
-    >
-      ⏃
-    </button>
-  </div>
-</div>
 
       <div class="mt-10 h-px w-full bg-white/30"></div>
     </section>
