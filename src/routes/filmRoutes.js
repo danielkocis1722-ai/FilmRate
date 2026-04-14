@@ -11,6 +11,7 @@ router.get("/movies", async (req, res) => {
     const runtime = req.query.runtime || "";
     const sort = req.query.sort || "popularity.desc";
     const year = req.query.year?.trim() || "";
+    const page = Number(req.query.page) || 1;
 
     const [config, genresData] = await Promise.all([
       tmdbService.getConfig(),
@@ -24,6 +25,7 @@ router.get("/movies", async (req, res) => {
     } else {
       const discoverParams = {
         sort_by: sort,
+        page,
       };
 
       if (genre) {
@@ -73,6 +75,8 @@ router.get("/movies", async (req, res) => {
         sort,
         year,
       },
+      currentPage: data.page || page,
+      totalPages: data.total_pages || 1,
     });
   } catch (err) {
     console.error("TMDb movies error:", err.response?.data || err.message);

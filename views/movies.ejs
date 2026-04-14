@@ -178,13 +178,24 @@
     </section>
 
     <!-- Load more -->
-    <section class="mt-14 flex justify-center">
-      <button
-        class="rounded-full border border-white px-10 py-4 text-xl font-medium text-white transition hover:bg-white hover:text-black sm:px-20"
-      >
-        Načítať viac ↓
-      </button>
-    </section>
+<% if (currentPage < totalPages) { %>
+  <section class="mt-14 flex justify-center">
+    <a
+      href="/movies?<%= new URLSearchParams({
+        q: search || '',
+        genre: filters.genre || '',
+        minRating: filters.minRating || '',
+        runtime: filters.runtime || '',
+        sort: filters.sort || 'popularity.desc',
+        year: filters.year || '',
+        page: String(currentPage + 1)
+      }).toString() %>"
+      class="rounded-full border border-white px-10 py-4 text-xl font-medium text-white transition hover:bg-white hover:text-black sm:px-20"
+    >
+      Načítať viac ↓
+    </a>
+  </section>
+<% } %>
   </main>
 
   <%- include("partials/footer") %>

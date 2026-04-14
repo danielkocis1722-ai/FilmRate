@@ -50,14 +50,14 @@ app.use("/", filmRoutes);
 
 app.use("/", homeRoutes);
 
-pool
-  .connect()
-  .then(() => {
+(async () => {
+  try {
+    await pool.query("SELECT 1");
     console.log("Connected to PostgreSQL");
-  })
-  .catch((err) => {
+  } catch (err) {
     console.error("PostgreSQL connection error:", err.message);
-  });
+  }
+})();
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

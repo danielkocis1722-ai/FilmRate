@@ -12,58 +12,96 @@
       <h1 class="max-w-6xl text-4xl font-extrabold leading-tight sm:text-5xl lg:text-7xl">
         Všetky recenzie na jednom mieste.
       </h1>
-
-      <div class="mt-10 flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
-        <div class="flex flex-col gap-5 lg:flex-row lg:flex-wrap lg:items-center">
-          <div class="w-full lg:w-auto lg:min-w-90">
-            <div class="relative">
-              <span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
-                🔍
-              </span>
-              <input
-                type="text"
-                placeholder="Hľadaj film..."
-                class="w-full rounded-xl border border-white/10 bg-white px-11 py-3 text-lg text-black outline-none transition focus:border-cyan-400"
-              />
-            </div>
-          </div>
-
-          <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
-            <span class="text-2xl font-semibold text-white/90">Filtrovať:</span>
-
-            <div class="relative">
-              <select class="appearance-none rounded-full border border-white/40 bg-transparent px-6 py-3 pr-12 text-white outline-none">
-                <option class="bg-[#111522] text-white">Dĺžka</option>
-              </select>
-              <span class="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-white/70">˅</span>
-            </div>
-
-            <div class="relative">
-              <select class="appearance-none rounded-full border border-white/40 bg-transparent px-6 py-3 pr-12 text-white outline-none">
-                <option class="bg-[#111522] text-white">Hodnotenie</option>
-              </select>
-              <span class="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-white/70">˅</span>
-            </div>
-
-            <button
-              type="button"
-              class="flex h-12 w-12 items-center justify-center rounded-full border border-white/40 text-2xl text-white transition hover:bg-white/10"
-              aria-label="Ďalšie filtre"
-            >
-              ⏃
-            </button>
-          </div>
-
-          <a
-            href="/reviews/create"
-            class="inline-flex items-center justify-center rounded-lg bg-[#00c950]/90 px-8 py-4 text-xl font-semibold text-white transition hover:bg-[#00c950]/80"
-          >
-            Vytvoriť recenziu
-          </a>
+<form method="GET" action="/reviews" class="mt-10">
+  <div class="flex flex-col gap-20 lg:flex-row lg:items-end lg:justify-between">
+    <!-- LEFT SIDE -->
+    <div class="flex min-w-0 flex-1 flex-col gap-4">
+      <div class="min-w-0">
+        <div class="relative">
+          <span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
+            🔍
+          </span>
+          <input
+            type="text"
+            name="q"
+            value="<%= typeof search !== 'undefined' ? search : '' %>"
+            placeholder="Hľadaj film..."
+            class="w-full rounded-xl border border-white/10 bg-white px-11 py-3 text-lg text-black outline-none transition focus:border-cyan-400"
+          />
         </div>
-        </div>  
       </div>
 
+      <div class="flex flex-wrap items-center gap-4">
+        <button
+          type="submit"
+          class="inline-flex items-center justify-center rounded-lg bg-[#00c950]/90 px-6 py-3 text-lg font-semibold text-white transition hover:bg-[#00c950]/80"
+        >
+          Použiť filtre
+        </button>
+
+        <a
+          href="/reviews"
+          class="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-lg font-medium text-white transition hover:bg-white/10"
+        >
+          Reset
+        </a>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="flex flex-col gap-4 lg:shrink-0 lg:items-end">
+      <div class="flex flex-wrap items-center gap-4 lg:justify-end">
+        <span class="text-2xl font-semibold text-white/90">Filtrovať:</span>
+
+        <div class="relative">
+          <select
+            name="spoilers"
+            class="appearance-none rounded-full border border-white/40 bg-transparent px-6 py-3 pr-12 text-white outline-none"
+          >
+            <option value="no" class="bg-[#111522] text-white" <%= spoilers === "no" ? "selected" : "" %>>
+              Bez spoilerov
+            </option>
+            <option value="yes" class="bg-[#111522] text-white" <%= spoilers === "yes" ? "selected" : "" %>>
+              So spoilermi
+            </option>
+            <option value="all" class="bg-[#111522] text-white" <%= spoilers === "all" ? "selected" : "" %>>
+              Všetky recenzie
+            </option>
+          </select>
+          <span class="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-white/70">˅</span>
+        </div>
+
+        <div class="relative">
+            <select
+            name="minRating"
+            class="appearance-none rounded-full border border-white/40 bg-transparent px-6 py-3 pr-12 text-white outline-none"
+          >
+            <option value="" class="bg-[#111522] text-white" <%= !minRating ? "selected" : "" %>>
+              Hodnotenie
+            </option>
+            <option value="1" class="bg-[#111522] text-white" <%= minRating === "1" ? "selected" : "" %>>1+</option>
+            <option value="2" class="bg-[#111522] text-white" <%= minRating === "2" ? "selected" : "" %>>2+</option>
+            <option value="3" class="bg-[#111522] text-white" <%= minRating === "3" ? "selected" : "" %>>3+</option>
+            <option value="4" class="bg-[#111522] text-white" <%= minRating === "4" ? "selected" : "" %>>4+</option>
+            <option value="5" class="bg-[#111522] text-white" <%= minRating === "5" ? "selected" : "" %>>5+</option>
+            <option value="6" class="bg-[#111522] text-white" <%= minRating === "6" ? "selected" : "" %>>6+</option>
+            <option value="7" class="bg-[#111522] text-white" <%= minRating === "7" ? "selected" : "" %>>7+</option>
+            <option value="8" class="bg-[#111522] text-white" <%= minRating === "8" ? "selected" : "" %>>8+</option>
+            <option value="9" class="bg-[#111522] text-white" <%= minRating === "9" ? "selected" : "" %>>9+</option>
+            </select>
+          <span class="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-white/70">˅</span>
+        </div>
+      </div>
+
+      <a
+        href="/reviews/create"
+        class="inline-flex items-center justify-center rounded-lg bg-[#00c950]/90 px-8 py-4 text-xl font-semibold text-white transition hover:bg-[#00c950]/80"
+      >
+        Vytvoriť recenziu
+      </a>
+    </div>
+  </div>
+</form>
       <div class="mt-10 h-px w-full bg-white/30"></div>
     </section>
 
@@ -72,8 +110,12 @@
         <div class="rounded-4xl bg-[#171c29] p-8 text-center shadow-[0_10px_40px_rgba(0,0,0,0.35)]">
           <h2 class="text-3xl font-bold">Zatiaľ tu nie sú žiadne recenzie</h2>
           <p class="mt-4 text-lg text-gray-300">
-            Buď prvý, kto pridá recenziu.
-          </p>
+  <% if (search || spoilers !== "no" || minRating) { %>
+    Skús zmeniť vyhľadávanie alebo filtre.
+  <% } else { %>
+    Buď prvý, kto pridá recenziu.
+  <% } %>
+</p>
         </div>
       <% } %>
 

@@ -7,7 +7,26 @@ const pool = require("../config/db");
 
 router.get("/reviews", async (req, res) => {
   try {
-    const result = await pool.query(`
+    const search = req.query.q?.trim() || "";
+    const spoilers = req.query.spoilers || "no";
+    const minRating = req.query.minRating || "";
+
+    let matchedMovieIds = [];
+
+    if (search) {
+      const tmdbResults = await tmdbService.searchMovies(search);
+      matchedMovieIds = tmdbResults.results.map((movie) => movie.id);
+
+      if (matchedMovieIds.length === 0) {
+        return res.render("reviews", {
+          reviews: [],
+          search,
+          spoilers,
+        });
+      }
+    }
+
+    let query = `
       SELECT
         reviews.id,
         reviews.user_id,
@@ -24,9 +43,38 @@ router.get("/reviews", async (req, res) => {
       FROM reviews
       JOIN users ON reviews.user_id = users.id
       LEFT JOIN review_votes ON reviews.id = review_votes.review_id
+    `;
+
+    const conditions = [];
+    const values = [];
+
+    if (search) {
+      values.push(matchedMovieIds);
+      conditions.push(`reviews.tmdb_movie_id = ANY($${values.length})`);
+    }
+
+    if (spoilers === "no") {
+      conditions.push("reviews.contains_spoilers = false");
+    } else if (spoilers === "yes") {
+      conditions.push("reviews.contains_spoilers = true");
+    }
+
+    if (minRating) {
+      values.push(Number(minRating));
+      conditions.push(`reviews.rating >= $${values.length}`);
+    }
+
+    if (conditions.length > 0) {
+      query += ` WHERE ${conditions.join(" AND ")}`;
+    }
+
+    query += `
       GROUP BY reviews.id, users.username, users.avatar_url
       ORDER BY reviews.created_at DESC
-    `);
+    `;
+
+    const result = await pool.query(query, values);
+
     const reviews = result.rows;
     const movieIds = reviews.map((review) => Number(review.tmdb_movie_id));
     const moviesInfoMap = await tmdbService.getMoviesInfoMap(movieIds);
@@ -42,6 +90,9 @@ router.get("/reviews", async (req, res) => {
 
     res.render("reviews", {
       reviews: reviewsWithMovieInfo,
+      search,
+      spoilers,
+      minRating,
     });
   } catch (err) {
     console.error("Load reviews error:", err);

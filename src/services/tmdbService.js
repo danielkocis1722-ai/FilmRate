@@ -22,6 +22,7 @@ async function searchMovies(query) {
   return tmdbGet("/search/movie", {
     query,
     language: "sk-SK",
+    page,
   });
 }
 
