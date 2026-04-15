@@ -18,7 +18,7 @@ async function getConfig() {
   return tmdbGet("/configuration");
 }
 
-async function searchMovies(query) {
+async function searchMovies(query, page = 1) {
   return tmdbGet("/search/movie", {
     query,
     language: "sk-SK",
@@ -30,14 +30,24 @@ async function discoverMovies(params = {}) {
   return tmdbGet("/discover/movie", {
     language: "sk-SK",
     sort_by: "popularity.desc",
+    "vote_count.gte": 100,
     ...params,
   });
 }
 
-async function getMovieDetails(movieId) {
-  return tmdbGet(`/movie/${movieId}`, {
+async function getMovieDetails(id) {
+  let data = await tmdbGet(`/movie/${id}`, {
     language: "sk-SK",
   });
+
+  // fallback ak nie je popis
+  if (!data.overview) {
+    data = await tmdbGet(`/movie/${id}`, {
+      language: "en-US",
+    });
+  }
+
+  return data;
 }
 
 async function getMovieCredits(movieId) {

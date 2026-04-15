@@ -105,7 +105,7 @@
       <div class="mt-10 h-px w-full bg-white/30"></div>
     </section>
 
-    <section class="mt-12 space-y-10">
+   <section id="reviews-list" class="mt-12 space-y-10">
       <% if (reviews.length === 0) { %>
         <div class="rounded-4xl bg-[#171c29] p-8 text-center shadow-[0_10px_40px_rgba(0,0,0,0.35)]">
           <h2 class="text-3xl font-bold">Zatiaľ tu nie sú žiadne recenzie</h2>
@@ -219,9 +219,211 @@
         </article>
       <% }) %>
     </section>
+
+    <% if (currentPage < totalPages) { %>
+  <section class="mt-14 flex justify-center">
+    <button
+      id="load-more-reviews-btn"
+      type="button"
+      data-current-page="<%= currentPage %>"
+      data-total-pages="<%= totalPages %>"
+      data-q="<%= search || '' %>"
+      data-spoilers="<%= spoilers || 'no' %>"
+      data-min-rating="<%= minRating || '' %>"
+      class="rounded-full border border-white px-10 py-4 text-xl font-medium text-white transition hover:bg-white hover:text-black sm:px-20"
+    >
+      Načítať viac ↓
+    </button>
+  </section>
+<% } %>
   </main>
 
   <%- include("partials/footer") %>
 
+
+
+
+
+  <script>
+  const loadMoreReviewsBtn = document.getElementById("load-more-reviews-btn");
+  const reviewsList = document.getElementById("reviews-list");
+
+  function escapeHtml(str) {
+    return String(str)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function createReviewCard(review, currentUserId) {
+    const createdAt = new Date(review.created_at).toLocaleDateString("sk-SK");
+    const avatar = review.avatar_url || "https://placehold.co/48x48?text=AV";
+    const moviePoster = review.moviePoster || "https://placehold.co/180x260?text=Poster";
+    const movieTitle = review.movieTitle || "Neznámy film";
+    const reviewTitle = review.title || "Bez nadpisu";
+    const helpfulCount = Number(review.helpful_count || 0);
+    const notHelpfulCount = Number(review.not_helpful_count || 0);
+    const isOwnReview = currentUserId && Number(currentUserId) === Number(review.user_id);
+
+    return `
+      <article class="rounded-4xl bg-[#171c29] p-5 shadow-[0_10px_40px_rgba(0,0,0,0.35)] sm:p-7">
+        <div class="flex flex-col gap-6 md:flex-row">
+          <div class="w-full md:w-36">
+            <a href="/movies/${review.tmdb_movie_id}">
+              <img
+                src="${moviePoster}"
+                alt="Poster filmu ${escapeHtml(movieTitle)}"
+                class="h-full w-full rounded-2xl object-cover"
+              />
+            </a>
+          </div>
+
+          <div class="flex-1">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div class="flex items-center gap-3">
+                <img
+                  src="${avatar}"
+                  alt="Avatar používateľa ${escapeHtml(review.username)}"
+                  class="h-12 w-12 rounded-full object-cover"
+                />
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <a
+                    href="/users/${encodeURIComponent(review.username)}"
+                    class="text-lg font-semibold text-white transition hover:text-[#00c950]"
+                  >
+                    ${escapeHtml(review.username)}
+                  </a>
+                  <span class="text-lg text-gray-400">·</span>
+                  <span class="text-lg text-gray-400">${createdAt}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+              <h2 class="text-3xl font-bold sm:text-4xl">${escapeHtml(reviewTitle)}</h2>
+              <span class="hidden text-4xl text-gray-400 sm:inline">|</span>
+              <span class="text-2xl font-semibold text-white sm:text-3xl">
+                ⭐ ${review.rating}/10
+              </span>
+            </div>
+
+            <p class="mt-3 text-lg font-medium text-[#00c950] sm:text-xl">
+              <a href="/movies/${review.tmdb_movie_id}" class="transition hover:opacity-80">
+                ${escapeHtml(movieTitle)}
+              </a>
+            </p>
+
+            <p class="mt-5 max-w-5xl text-base leading-7 text-gray-300 sm:text-2xl sm:leading-8">
+              ${escapeHtml(review.review_text)}
+            </p>
+
+            ${
+              review.contains_spoilers
+                ? `
+                  <p class="mt-4 inline-block rounded-full bg-red-500/15 px-4 py-2 text-sm font-medium text-red-300">
+                    Obsahuje spoilery
+                  </p>
+                `
+                : ""
+            }
+
+            <div class="mt-8 flex items-center justify-end gap-4 text-white">
+              ${
+                !isOwnReview && currentUserId
+                  ? `
+                    <form action="/reviews/${review.id}/vote" method="POST">
+                      <input type="hidden" name="voteType" value="helpful" />
+                      <button class="flex items-center gap-2 text-2xl transition hover:text-gray-300">
+                        <span class="cursor-pointer">👍</span>
+                        <span class="text-xl">${helpfulCount}</span>
+                      </button>
+                    </form>
+
+                    <form action="/reviews/${review.id}/vote" method="POST">
+                      <input type="hidden" name="voteType" value="not_helpful" />
+                      <button class="flex items-center gap-2 text-2xl transition hover:text-gray-300">
+                        <span class="cursor-pointer">👎</span>
+                        <span class="text-xl">${notHelpfulCount}</span>
+                      </button>
+                    </form>
+                  `
+                  : `
+                    <div class="flex items-center gap-2 text-2xl text-white/80">
+                      <span class="cursor-pointer">👍</span>
+                      <span class="text-xl">${helpfulCount}</span>
+                    </div>
+
+                    <div class="flex items-center gap-2 text-2xl text-white/80">
+                      <span class="cursor-pointer">👎</span>
+                      <span class="text-xl">${notHelpfulCount}</span>
+                    </div>
+                  `
+              }
+
+              <button class="flex items-center gap-2 text-2xl transition hover:text-gray-300">
+                <span>💬</span>
+                <span class="text-xl">0</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  async function loadMoreReviews() {
+    if (!loadMoreReviewsBtn) return;
+
+    const currentPage = Number(loadMoreReviewsBtn.dataset.currentPage);
+    const totalPages = Number(loadMoreReviewsBtn.dataset.totalPages);
+
+    if (currentPage >= totalPages) {
+      loadMoreReviewsBtn.remove();
+      return;
+    }
+
+    loadMoreReviewsBtn.disabled = true;
+    loadMoreReviewsBtn.textContent = "Načítavam...";
+
+    const params = new URLSearchParams({
+      q: loadMoreReviewsBtn.dataset.q || "",
+      spoilers: loadMoreReviewsBtn.dataset.spoilers || "no",
+      minRating: loadMoreReviewsBtn.dataset.minRating || "",
+      page: String(currentPage + 1),
+    });
+
+    try {
+      const response = await fetch(`/api/reviews?${params.toString()}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Chyba pri načítaní recenzií.");
+      }
+
+      const currentUserId = "<%= user ? user.id : '' %>";
+      const html = data.reviews.map((review) => createReviewCard(review, currentUserId)).join("");
+      reviewsList.insertAdjacentHTML("beforeend", html);
+
+      loadMoreReviewsBtn.dataset.currentPage = String(data.currentPage);
+
+      if (data.currentPage >= data.totalPages) {
+        loadMoreReviewsBtn.remove();
+      } else {
+        loadMoreReviewsBtn.disabled = false;
+        loadMoreReviewsBtn.textContent = "Načítať viac ↓";
+      }
+    } catch (error) {
+      console.error(error);
+      loadMoreReviewsBtn.disabled = false;
+      loadMoreReviewsBtn.textContent = "Skús znova";
+    }
+  }
+
+  if (loadMoreReviewsBtn) {
+    loadMoreReviewsBtn.addEventListener("click", loadMoreReviews);
+  }
+</script>
 </body>
 </html>

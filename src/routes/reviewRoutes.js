@@ -1,102 +1,145 @@
 const express = require("express");
 const router = express.Router();
 const { requireAuth } = require("../middleware/authMiddleware");
-const movies = require("../data/mockMovies");
 const tmdbService = require("../services/tmdbService");
 const pool = require("../config/db");
 
+async function loadReviewsPage(queryParams) {
+  const search = queryParams.q?.trim() || "";
+  const spoilers = queryParams.spoilers || "no";
+  const minRating = queryParams.minRating || "";
+  const page = Number(queryParams.page) || 1;
+  const limit = 5;
+  const offset = (page - 1) * limit;
+
+  let matchedMovieIds = [];
+
+  if (search) {
+    const tmdbResults = await tmdbService.searchMovies(search);
+    matchedMovieIds = tmdbResults.results.map((movie) => movie.id);
+
+    if (matchedMovieIds.length === 0) {
+      return {
+        reviews: [],
+        search,
+        spoilers,
+        minRating,
+        currentPage: page,
+        totalPages: 0,
+      };
+    }
+  }
+
+  const conditions = [];
+  const values = [];
+
+  if (search) {
+    values.push(matchedMovieIds);
+    conditions.push(`reviews.tmdb_movie_id = ANY($${values.length})`);
+  }
+
+  if (spoilers === "no") {
+    conditions.push("reviews.contains_spoilers = false");
+  } else if (spoilers === "yes") {
+    conditions.push("reviews.contains_spoilers = true");
+  }
+
+  if (minRating) {
+    values.push(Number(minRating));
+    conditions.push(`reviews.rating >= $${values.length}`);
+  }
+
+  let whereClause = "";
+  if (conditions.length > 0) {
+    whereClause = `WHERE ${conditions.join(" AND ")}`;
+  }
+
+  const countQuery = `
+    SELECT COUNT(*) AS total
+    FROM reviews
+    ${whereClause}
+  `;
+
+  const countResult = await pool.query(countQuery, values);
+  const totalCount = Number(countResult.rows[0].total);
+  const totalPages = Math.ceil(totalCount / limit);
+
+  const paginatedValues = [...values];
+  paginatedValues.push(limit);
+  paginatedValues.push(offset);
+
+  const reviewsQuery = `
+    SELECT
+      reviews.id,
+      reviews.user_id,
+      reviews.tmdb_movie_id,
+      reviews.title,
+      reviews.review_text,
+      reviews.rating,
+      reviews.contains_spoilers,
+      reviews.created_at,
+      users.username,
+      users.avatar_url,
+      COUNT(CASE WHEN review_votes.vote_type = 'helpful' THEN 1 END) AS helpful_count,
+      COUNT(CASE WHEN review_votes.vote_type = 'not_helpful' THEN 1 END) AS not_helpful_count
+    FROM reviews
+    JOIN users ON reviews.user_id = users.id
+    LEFT JOIN review_votes ON reviews.id = review_votes.review_id
+    ${whereClause}
+    GROUP BY reviews.id, users.username, users.avatar_url
+    ORDER BY reviews.created_at DESC
+    LIMIT $${paginatedValues.length - 1}
+    OFFSET $${paginatedValues.length}
+  `;
+
+  const result = await pool.query(reviewsQuery, paginatedValues);
+
+  const reviews = result.rows;
+  const movieIds = reviews.map((review) => Number(review.tmdb_movie_id));
+  const moviesInfoMap = await tmdbService.getMoviesInfoMap(movieIds);
+
+  const reviewsWithMovieInfo = reviews.map((review) => ({
+    ...review,
+    movieTitle:
+      moviesInfoMap[Number(review.tmdb_movie_id)]?.title || "Neznámy film",
+    moviePoster:
+      moviesInfoMap[Number(review.tmdb_movie_id)]?.poster ||
+      "https://placehold.co/180x260?text=Poster",
+  }));
+
+  return {
+    reviews: reviewsWithMovieInfo,
+    search,
+    spoilers,
+    minRating,
+    currentPage: page,
+    totalPages,
+  };
+}
+
 router.get("/reviews", async (req, res) => {
   try {
-    const search = req.query.q?.trim() || "";
-    const spoilers = req.query.spoilers || "no";
-    const minRating = req.query.minRating || "";
+    const reviewsPage = await loadReviewsPage(req.query);
 
-    let matchedMovieIds = [];
-
-    if (search) {
-      const tmdbResults = await tmdbService.searchMovies(search);
-      matchedMovieIds = tmdbResults.results.map((movie) => movie.id);
-
-      if (matchedMovieIds.length === 0) {
-        return res.render("reviews", {
-          reviews: [],
-          search,
-          spoilers,
-        });
-      }
-    }
-
-    let query = `
-      SELECT
-        reviews.id,
-        reviews.user_id,
-        reviews.tmdb_movie_id,
-        reviews.title,
-        reviews.review_text,
-        reviews.rating,
-        reviews.contains_spoilers,
-        reviews.created_at,
-        users.username,
-        users.avatar_url,
-        COUNT(CASE WHEN review_votes.vote_type = 'helpful' THEN 1 END) AS helpful_count,
-        COUNT(CASE WHEN review_votes.vote_type = 'not_helpful' THEN 1 END) AS not_helpful_count
-      FROM reviews
-      JOIN users ON reviews.user_id = users.id
-      LEFT JOIN review_votes ON reviews.id = review_votes.review_id
-    `;
-
-    const conditions = [];
-    const values = [];
-
-    if (search) {
-      values.push(matchedMovieIds);
-      conditions.push(`reviews.tmdb_movie_id = ANY($${values.length})`);
-    }
-
-    if (spoilers === "no") {
-      conditions.push("reviews.contains_spoilers = false");
-    } else if (spoilers === "yes") {
-      conditions.push("reviews.contains_spoilers = true");
-    }
-
-    if (minRating) {
-      values.push(Number(minRating));
-      conditions.push(`reviews.rating >= $${values.length}`);
-    }
-
-    if (conditions.length > 0) {
-      query += ` WHERE ${conditions.join(" AND ")}`;
-    }
-
-    query += `
-      GROUP BY reviews.id, users.username, users.avatar_url
-      ORDER BY reviews.created_at DESC
-    `;
-
-    const result = await pool.query(query, values);
-
-    const reviews = result.rows;
-    const movieIds = reviews.map((review) => Number(review.tmdb_movie_id));
-    const moviesInfoMap = await tmdbService.getMoviesInfoMap(movieIds);
-
-    const reviewsWithMovieInfo = reviews.map((review) => ({
-      ...review,
-      movieTitle:
-        moviesInfoMap[Number(review.tmdb_movie_id)]?.title || "Neznámy film",
-      moviePoster:
-        moviesInfoMap[Number(review.tmdb_movie_id)]?.poster ||
-        "https://placehold.co/180x260?text=Poster",
-    }));
-
-    res.render("reviews", {
-      reviews: reviewsWithMovieInfo,
-      search,
-      spoilers,
-      minRating,
-    });
+    res.render("reviews", reviewsPage);
   } catch (err) {
     console.error("Load reviews error:", err);
     res.status(500).send("Chyba pri načítaní recenzií.");
+  }
+});
+
+router.get("/api/reviews", async (req, res) => {
+  try {
+    const reviewsPage = await loadReviewsPage(req.query);
+
+    res.json({
+      reviews: reviewsPage.reviews,
+      currentPage: reviewsPage.currentPage,
+      totalPages: reviewsPage.totalPages,
+    });
+  } catch (err) {
+    console.error("Load reviews API error:", err);
+    res.status(500).json({ error: "Chyba pri načítaní recenzií." });
   }
 });
 
@@ -179,7 +222,7 @@ router.post("/reviews/create", requireAuth, async (req, res) => {
     );
 
     // redirect späť na film (lepší UX)
-    res.redirect(`/movies/${movieId}`);
+    res.redirect(`/reviews`);
   } catch (err) {
     console.error("Create review error:", err);
     res.status(500).send("Chyba pri ukladaní recenzie.");
