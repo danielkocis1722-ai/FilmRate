@@ -102,26 +102,36 @@
   </section>
 
   <section class="bg-black px-6 py-12">
-    <div class="mx-auto max-w-7xl">
-      <h2 class="text-4xl font-extrabold sm:text-5xl">Účinkujú</h2>
+  <div class="mx-auto max-w-7xl">
+    <h2 class="text-4xl font-extrabold sm:text-5xl">Účinkujú</h2>
 
-      <div class="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
-        <% movie.cast.forEach(actor => { %>
-          <article class="overflow-hidden bg-[#171c29]">
+    <div class="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
+      <% movie.cast.forEach(actor => { %>
+        <article class="group overflow-hidden rounded-2xl bg-[#171c29] shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
+          <div class="relative aspect-4/5 overflow-hidden">
             <img
               src="<%= actor.image %>"
               alt="Fotografia herca <%= actor.name %>"
-              class="aspect-4/5 h-full w-full object-cover"
+              class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
             />
-            <div class="p-3">
-              <h3 class="text-base font-bold text-white"><%= actor.name %></h3>
-              <p class="text-sm text-gray-300"><%= actor.role %></p>
+
+            <div class="absolute inset-0 bg-linear-to-t from-black/90 via-black/25 to-transparent"></div>
+
+            <div class="absolute inset-x-0 bottom-0 p-4">
+              <h3 class="translate-y-5 text-base font-bold text-white transition duration-300 group-hover:translate-y-0">
+                <%= actor.name %>
+              </h3>
+
+              <p class="mt-2 translate-y-4 opacity-0 text-sm text-gray-200 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                <%= actor.role || "Neznáma postava" %>
+              </p>
             </div>
-          </article>
-        <% }) %>
-      </div>
+          </div>
+        </article>
+      <% }) %>
     </div>
-  </section>
+  </div>
+</section>
 
 <section class="bg-[#07101d] px-6 py-12 sm:py-14">
   <div class="mx-auto max-w-7xl">
