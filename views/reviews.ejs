@@ -180,32 +180,37 @@
                 </p>
               <% } %>
 
-            <div class="mt-8 flex items-center justify-end gap-4 text-white">
+<div
+  class="mt-8 flex items-center justify-end gap-4 text-white"
+  data-review-id="<%= review.id %>"
+>
   <% if (user && user.id !== review.user_id) { %>
-    <form action="/reviews/<%= review.id %>/vote" method="POST">
-      <input type="hidden" name="voteType" value="helpful" />
-      <button class="flex items-center gap-2 text-2xl transition hover:text-gray-300">
-        <span class="cursor-pointer">👍</span>
-        <span class="text-xl"><%= review.helpful_count %></span>
-      </button>
-    </form>
+    <button
+      type="button"
+      data-vote-button="helpful"
+      class="flex items-center gap-2 text-2xl transition hover:text-gray-300"
+    >
+      <span class="cursor-pointer">👍</span>
+      <span class="text-xl" data-helpful-count><%= review.helpful_count %></span>
+    </button>
 
-    <form action="/reviews/<%= review.id %>/vote" method="POST">
-      <input type="hidden" name="voteType" value="not_helpful" />
-      <button class="flex items-center gap-2 text-2xl transition hover:text-gray-300">
-        <span class="cursor-pointer">👎</span>
-        <span class="text-xl"><%= review.not_helpful_count %></span>
-      </button>
-    </form>
+    <button
+      type="button"
+      data-vote-button="not_helpful"
+      class="flex items-center gap-2 text-2xl transition hover:text-gray-300"
+    >
+      <span class="cursor-pointer">👎</span>
+      <span class="text-xl" data-not-helpful-count><%= review.not_helpful_count %></span>
+    </button>
   <% } else { %>
     <div class="flex items-center gap-2 text-2xl text-white/80">
       <span class="cursor-pointer">👍</span>
-      <span class="text-xl"><%= review.helpful_count %></span>
+      <span class="text-xl" data-helpful-count><%= review.helpful_count %></span>
     </div>
 
     <div class="flex items-center gap-2 text-2xl text-white/80">
       <span class="cursor-pointer">👎</span>
-      <span class="text-xl"><%= review.not_helpful_count %></span>
+      <span class="text-xl" data-not-helpful-count><%= review.not_helpful_count %></span>
     </div>
   <% } %>
 
@@ -244,7 +249,7 @@
 
 
 
-  <script>
+<script>
   const loadMoreReviewsBtn = document.getElementById("load-more-reviews-btn");
   const reviewsList = document.getElementById("reviews-list");
 
@@ -260,12 +265,14 @@
   function createReviewCard(review, currentUserId) {
     const createdAt = new Date(review.created_at).toLocaleDateString("sk-SK");
     const avatar = review.avatar_url || "https://placehold.co/48x48?text=AV";
-    const moviePoster = review.moviePoster || "https://placehold.co/180x260?text=Poster";
+    const moviePoster =
+      review.moviePoster || "https://placehold.co/180x260?text=Poster";
     const movieTitle = review.movieTitle || "Neznámy film";
     const reviewTitle = review.title || "Bez nadpisu";
     const helpfulCount = Number(review.helpful_count || 0);
     const notHelpfulCount = Number(review.not_helpful_count || 0);
-    const isOwnReview = currentUserId && Number(currentUserId) === Number(review.user_id);
+    const isOwnReview =
+      currentUserId && Number(currentUserId) === Number(review.user_id);
 
     return `
       <article class="rounded-4xl bg-[#171c29] p-5 shadow-[0_10px_40px_rgba(0,0,0,0.35)] sm:p-7">
@@ -329,35 +336,40 @@
                 : ""
             }
 
-            <div class="mt-8 flex items-center justify-end gap-4 text-white">
+            <div
+              class="mt-8 flex items-center justify-end gap-4 text-white"
+              data-review-id="${review.id}"
+            >
               ${
                 !isOwnReview && currentUserId
                   ? `
-                    <form action="/reviews/${review.id}/vote" method="POST">
-                      <input type="hidden" name="voteType" value="helpful" />
-                      <button class="flex items-center gap-2 text-2xl transition hover:text-gray-300">
-                        <span class="cursor-pointer">👍</span>
-                        <span class="text-xl">${helpfulCount}</span>
-                      </button>
-                    </form>
+                    <button
+                      type="button"
+                      data-vote-button="helpful"
+                      class="flex items-center gap-2 text-2xl transition hover:text-gray-300"
+                    >
+                      <span class="cursor-pointer">👍</span>
+                      <span class="text-xl" data-helpful-count>${helpfulCount}</span>
+                    </button>
 
-                    <form action="/reviews/${review.id}/vote" method="POST">
-                      <input type="hidden" name="voteType" value="not_helpful" />
-                      <button class="flex items-center gap-2 text-2xl transition hover:text-gray-300">
-                        <span class="cursor-pointer">👎</span>
-                        <span class="text-xl">${notHelpfulCount}</span>
-                      </button>
-                    </form>
+                    <button
+                      type="button"
+                      data-vote-button="not_helpful"
+                      class="flex items-center gap-2 text-2xl transition hover:text-gray-300"
+                    >
+                      <span class="cursor-pointer">👎</span>
+                      <span class="text-xl" data-not-helpful-count>${notHelpfulCount}</span>
+                    </button>
                   `
                   : `
                     <div class="flex items-center gap-2 text-2xl text-white/80">
                       <span class="cursor-pointer">👍</span>
-                      <span class="text-xl">${helpfulCount}</span>
+                      <span class="text-xl" data-helpful-count>${helpfulCount}</span>
                     </div>
 
                     <div class="flex items-center gap-2 text-2xl text-white/80">
                       <span class="cursor-pointer">👎</span>
-                      <span class="text-xl">${notHelpfulCount}</span>
+                      <span class="text-xl" data-not-helpful-count>${notHelpfulCount}</span>
                     </div>
                   `
               }
@@ -403,7 +415,10 @@
       }
 
       const currentUserId = "<%= user ? user.id : '' %>";
-      const html = data.reviews.map((review) => createReviewCard(review, currentUserId)).join("");
+      const html = data.reviews
+        .map((review) => createReviewCard(review, currentUserId))
+        .join("");
+
       reviewsList.insertAdjacentHTML("beforeend", html);
 
       loadMoreReviewsBtn.dataset.currentPage = String(data.currentPage);
@@ -421,9 +436,58 @@
     }
   }
 
+  async function sendVote(reviewId, voteType, wrapper, button) {
+    try {
+      button.disabled = true;
+
+      const response = await fetch(`/api/reviews/${reviewId}/vote`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ voteType }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Chyba pri hlasovaní.");
+      }
+
+      const helpfulCountEl = wrapper.querySelector("[data-helpful-count]");
+      const notHelpfulCountEl = wrapper.querySelector("[data-not-helpful-count]");
+
+      if (helpfulCountEl) {
+        helpfulCountEl.textContent = data.helpfulCount;
+      }
+
+      if (notHelpfulCountEl) {
+        notHelpfulCountEl.textContent = data.notHelpfulCount;
+      }
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Chyba pri hlasovaní.");
+    } finally {
+      button.disabled = false;
+    }
+  }
+
   if (loadMoreReviewsBtn) {
     loadMoreReviewsBtn.addEventListener("click", loadMoreReviews);
   }
+
+  document.addEventListener("click", (event) => {
+    const voteButton = event.target.closest("[data-vote-button]");
+    if (!voteButton) return;
+
+    const wrapper = voteButton.closest("[data-review-id]");
+    if (!wrapper) return;
+
+    const reviewId = wrapper.dataset.reviewId;
+    const voteType = voteButton.dataset.voteButton;
+
+    sendVote(reviewId, voteType, wrapper, voteButton);
+  });
 </script>
 </body>
 </html>

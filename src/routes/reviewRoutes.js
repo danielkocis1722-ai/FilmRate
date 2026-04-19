@@ -229,6 +229,76 @@ router.post("/reviews/create", requireAuth, async (req, res) => {
   }
 });
 
+router.post("/api/reviews/:id/vote", requireAuth, async (req, res) => {
+  const reviewId = Number(req.params.id);
+  const userId = req.session.user.id;
+  const { voteType } = req.body;
+
+  if (!["helpful", "not_helpful"].includes(voteType)) {
+    return res.status(400).json({ error: "Neplatný typ hlasu." });
+  }
+
+  try {
+    const reviewResult = await pool.query(
+      "SELECT id, user_id FROM reviews WHERE id = $1",
+      [reviewId],
+    );
+
+    if (reviewResult.rows.length === 0) {
+      return res.status(404).json({ error: "Recenzia sa nenašla." });
+    }
+
+    const review = reviewResult.rows[0];
+
+    if (review.user_id === userId) {
+      return res
+        .status(403)
+        .json({ error: "Na vlastnú recenziu nemôžeš hlasovať." });
+    }
+
+    const existingVoteResult = await pool.query(
+      "SELECT id, vote_type FROM review_votes WHERE user_id = $1 AND review_id = $2",
+      [userId, reviewId],
+    );
+
+    if (existingVoteResult.rows.length === 0) {
+      await pool.query(
+        "INSERT INTO review_votes (user_id, review_id, vote_type) VALUES ($1, $2, $3)",
+        [userId, reviewId, voteType],
+      );
+    } else {
+      const existingVote = existingVoteResult.rows[0];
+
+      if (existingVote.vote_type !== voteType) {
+        await pool.query(
+          "UPDATE review_votes SET vote_type = $1 WHERE id = $2",
+          [voteType, existingVote.id],
+        );
+      }
+    }
+
+    const countsResult = await pool.query(
+      `
+      SELECT
+        COUNT(CASE WHEN vote_type = 'helpful' THEN 1 END) AS helpful_count,
+        COUNT(CASE WHEN vote_type = 'not_helpful' THEN 1 END) AS not_helpful_count
+      FROM review_votes
+      WHERE review_id = $1
+      `,
+      [reviewId],
+    );
+
+    return res.json({
+      success: true,
+      helpfulCount: Number(countsResult.rows[0].helpful_count || 0),
+      notHelpfulCount: Number(countsResult.rows[0].not_helpful_count || 0),
+    });
+  } catch (err) {
+    console.error("AJAX vote error:", err);
+    return res.status(500).json({ error: "Chyba pri hlasovaní." });
+  }
+});
+
 router.post("/reviews/:id/vote", requireAuth, async (req, res) => {
   const reviewId = Number(req.params.id);
   const userId = req.session.user.id;
