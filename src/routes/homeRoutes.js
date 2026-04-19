@@ -36,6 +36,7 @@ router.get("/", async (req, res) => {
     FROM reviews
     JOIN users ON reviews.user_id = users.id
     LEFT JOIN review_votes ON reviews.id = review_votes.review_id
+    WHERE reviews.contains_spoilers = false
     GROUP BY reviews.id, users.username, users.avatar_url
     ORDER BY reviews.created_at DESC
     LIMIT 2

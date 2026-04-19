@@ -10,6 +10,7 @@ const reviewRoutes = require("./src/routes/reviewRoutes");
 const profileRoutes = require("./src/routes/profileRoutes");
 const filmRoutes = require("./src/routes/filmRoutes");
 const homeRoutes = require("./src/routes/homeRoutes");
+const adminRoutes = require("./src/routes/adminRoutes");
 
 const app = express();
 
@@ -49,6 +50,8 @@ app.use("/", authRoutes);
 app.use("/", filmRoutes);
 
 app.use("/", homeRoutes);
+
+app.use("/", adminRoutes);
 
 (async () => {
   try {

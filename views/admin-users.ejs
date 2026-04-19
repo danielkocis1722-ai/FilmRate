@@ -1,0 +1,13 @@
+<h1>Používatelia</h1>
+
+<% users.forEach(u => { %>
+  <div style="border:1px solid white; margin:10px; padding:10px;">
+    <p><b><%= u.username %></b></p>
+    <p><%= u.email %></p>
+    <p><%= u.role %></p>
+
+    <form method="POST" action="/admin/users/<%= u.id %>/delete">
+      <button>Delete</button>
+    </form>
+  </div>
+<% }) %>
