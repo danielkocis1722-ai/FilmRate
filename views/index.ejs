@@ -47,7 +47,7 @@
   <!-- NAJNOVŠIE FILMY -->
   <section class="bg-black px-6 py-16 sm:py-20">
     <div class="mb-10 flex items-center gap-4"> <span class="text-3xl">🎞️</span> <h2 class="text-3xl font-extrabold sm:text-5xl">Najnovšie filmy</h2> </div>
-  <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+ <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
   <% latestMovies.forEach(movie => { %>
     <article class="overflow-hidden rounded-3xl bg-[#0d1220] shadow-[0_10px_40px_rgba(0,0,0,0.45)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
       <div class="aspect-3/4 overflow-hidden">
@@ -59,10 +59,16 @@
           />
         </a>
       </div>
+
       <div class="p-4">
         <h3 class="text-xl font-semibold"><%= movie.title %></h3>
-        <p class="mt-3 line-clamp-3 text-sm text-gray-400">
-          <%= movie.castPreview %>
+
+        <p class="mt-1 text-sm text-gray-400">
+          <%= movie.year %> · <%= movie.director %>
+        </p>
+
+        <p class="mt-3 line-clamp-2 text-sm text-gray-500">
+          <%= movie.cast.length ? movie.cast.join(", ") : "Obsadenie nie je dostupné." %>
         </p>
 
         <div class="mt-5 flex items-center justify-between">

@@ -30,7 +30,7 @@ async function discoverMovies(params = {}) {
   return tmdbGet("/discover/movie", {
     language: "sk-SK",
     sort_by: "popularity.desc",
-    "vote_count.gte": 100,
+    "vote_count.gte": 60,
     ...params,
   });
 }
