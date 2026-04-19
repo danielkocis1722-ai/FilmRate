@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <%- include("partials/head", { title: "Upraviť recenziu | FilmRate" }) %>
+</head>
+<body class="min-h-screen bg-[#05070d] text-white">
+
+  <%- include("partials/navbar") %>
+
+  <main class="mx-auto max-w-5xl px-6 pb-20 pt-14 sm:pt-20">
+    <section>
+      <h1 class="max-w-4xl text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
+        Uprav svoju recenziu.
+      </h1>
+
+      <p class="mt-5 max-w-3xl text-lg leading-8 text-gray-300 sm:text-2xl sm:leading-9">
+        Tu môžeš zmeniť nadpis, hodnotenie, text recenzie aj informáciu o spoileroch.
+      </p>
+    </section>
+
+    <section class="mt-12 rounded-4xl bg-[#171c29] p-6 shadow-[0_10px_40px_rgba(0,0,0,0.35)] sm:p-8 lg:p-10">
+      <form method="POST" action="/reviews/<%= review.id %>/edit" class="space-y-8">
+        <div>
+          <label for="rating" class="mb-3 block text-lg font-medium text-white/90">
+            Hodnotenie
+          </label>
+
+          <div class="grid grid-cols-2 gap-4 sm:grid-cols-5 lg:grid-cols-10">
+            <% for (let i = 1; i <= 10; i++) { %>
+              <label class="cursor-pointer">
+                <input
+                  type="radio"
+                  name="rating"
+                  value="<%= i %>"
+                  class="peer sr-only"
+                  <%= Number(review.rating) === i ? "checked" : "" %>
+                />
+                <div class="rounded-xl border border-white/10 bg-[#232730] px-4 py-4 text-center text-lg font-semibold text-white transition hover:bg-white/10 peer-checked:bg-[#738b58] peer-checked:text-white">
+                  <%= i %>
+                </div>
+              </label>
+            <% } %>
+          </div>
+        </div>
+
+        <div>
+          <label for="reviewTitle" class="mb-3 block text-lg font-medium text-white/90">
+            Nadpis recenzie
+          </label>
+          <input
+            id="reviewTitle"
+            name="reviewTitle"
+            type="text"
+            value="<%= review.title || '' %>"
+            placeholder="Zadaj krátky nadpis recenzie"
+            class="w-full rounded-xl bg-[#232730] px-6 py-5 text-xl text-white placeholder:text-gray-300/70 outline-none ring-1 ring-white/5 transition focus:ring-2 focus:ring-cyan-400/40"
+          />
+        </div>
+
+        <div>
+          <label for="reviewText" class="mb-3 block text-lg font-medium text-white/90">
+            Text recenzie
+          </label>
+          <textarea
+            id="reviewText"
+            name="reviewText"
+            rows="10"
+            placeholder="Napíš svoju recenziu..."
+            class="w-full resize-none rounded-xl bg-[#232730] px-6 py-5 text-lg text-white placeholder:text-gray-300/70 outline-none ring-1 ring-white/5 transition focus:ring-2 focus:ring-cyan-400/40 sm:text-xl"
+          ><%= review.review_text %></textarea>
+        </div>
+
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <label class="flex items-center gap-3 text-lg text-white/90">
+            <input
+              type="checkbox"
+              name="containsSpoilers"
+              class="h-5 w-5 rounded border-white/20 bg-transparent accent-[#738b58]"
+              <%= review.contains_spoilers ? "checked" : "" %>
+            />
+            <span>Recenzia obsahuje spoilery</span>
+          </label>
+        </div>
+
+        <div class="flex flex-col gap-4 pt-4 sm:flex-row">
+          <button
+            type="submit"
+            class="inline-flex items-center justify-center rounded-lg bg-[#738b58] px-8 py-4 text-xl font-semibold text-white transition hover:bg-[#829d64]"
+          >
+            Uložiť zmeny
+          </button>
+
+          <a
+            href="/profile"
+            class="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/5 px-8 py-4 text-xl font-medium text-white transition hover:bg-white/10"
+          >
+            Zrušiť
+          </a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <%- include("partials/footer") %>
+
+</body>
+</html>

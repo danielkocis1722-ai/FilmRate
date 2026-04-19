@@ -129,7 +129,7 @@
   </section>
 
   <!-- REVIEWS -->
-  <section id="reviews" class="bg-[#07101d] px-6 py-12 sm:py-14">
+  <section  on id="reviews" class="bg-[#07101d] px-6 py-12 sm:py-14">
     <div class="mx-auto max-w-7xl">
       <h2 class="text-5xl font-extrabold sm:text-6xl">Recenzie</h2>
 
@@ -202,12 +202,33 @@
       </p>
 
       <% if (review.contains_spoilers) { %>
-        <p class="mt-4 inline-block rounded-full bg-red-500/15 px-4 py-2 text-sm font-medium text-red-300">
-          Obsahuje spoilery
-        </p>
-      <% } %>
+  <p class="mt-4 inline-block rounded-full bg-red-500/15 px-4 py-2 text-sm font-medium text-red-300">
+    Obsahuje spoilery
+  </p>
+<% } %>
 
-      <div class="mt-8 flex items-center justify-end gap-6 text-white">
+<% if (isOwnProfile) { %>
+  <div class="mt-6 flex flex-wrap items-center gap-4">
+    <a
+      href="/reviews/<%= review.id %>/edit"
+      class="inline-flex items-center justify-center rounded-lg border border-blue-400/30 bg-blue-400/10 px-5 py-2 text-base font-medium text-blue-300 transition hover:bg-blue-400/20"
+    >
+      Upraviť
+    </a>
+
+    <form action="/reviews/<%= review.id %>/delete" method="POST">
+      <button
+        type="submit"
+        onclick="return confirm('Naozaj chceš vymazať túto recenziu?')"
+        class="inline-flex items-center justify-center rounded-lg border border-red-400/30 bg-red-400/10 px-5 py-2 text-base font-medium text-red-300 transition hover:bg-red-400/20"
+      >
+        Vymazať
+      </button>
+    </form>
+  </div>
+<% } %>
+
+<div class="mt-8 flex items-center justify-end gap-6 text-white">
         <div class="flex items-center gap-2 text-2xl text-white/80">
           <span class="cursor-pointer">👍</span>
           <span class="text-xl"><%= review.helpful_count %></span>
