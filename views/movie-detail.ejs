@@ -102,36 +102,26 @@
   </section>
 
   <section class="bg-black px-6 py-12">
-  <div class="mx-auto max-w-7xl">
-    <h2 class="text-4xl font-extrabold sm:text-5xl">Účinkujú</h2>
+    <div class="mx-auto max-w-7xl">
+      <h2 class="text-4xl font-extrabold sm:text-5xl">Účinkujú</h2>
 
-    <div class="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
-      <% movie.cast.forEach(actor => { %>
-        <article class="group overflow-hidden rounded-2xl bg-[#171c29] shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
-          <div class="relative aspect-4/5 overflow-hidden">
+      <div class="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
+        <% movie.cast.forEach(actor => { %>
+          <article class="overflow-hidden bg-[#171c29]">
             <img
               src="<%= actor.image %>"
               alt="Fotografia herca <%= actor.name %>"
-              class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+              class="aspect-4/5 h-full w-full object-cover"
             />
-
-            <div class="absolute inset-0 bg-linear-to-t from-black/90 via-black/25 to-transparent"></div>
-
-            <div class="absolute inset-x-0 bottom-0 p-4">
-              <h3 class="translate-y-5 text-base font-bold text-white transition duration-300 group-hover:translate-y-0">
-                <%= actor.name %>
-              </h3>
-
-              <p class="mt-2 translate-y-4 opacity-0 text-sm text-gray-200 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                <%= actor.role || "Neznáma postava" %>
-              </p>
+            <div class="p-3">
+              <h3 class="text-base font-bold text-white"><%= actor.name %></h3>
+              <p class="text-sm text-gray-300"><%= actor.role %></p>
             </div>
-          </div>
-        </article>
-      <% }) %>
+          </article>
+        <% }) %>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
 <section class="bg-[#07101d] px-6 py-12 sm:py-14">
   <div class="mx-auto max-w-7xl">
@@ -166,12 +156,16 @@
                 class="h-12 w-12 rounded-full object-cover"
               />
               <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-               <a
+              <p class="text-sm text-gray-400">
+ <a
   href="/users/<%= review.username %>"
   class="text-lg font-semibold text-white transition hover:text-[#00c950]"
 >
   <%= review.username %>
 </a>
+  ·
+  <%= new Date(comment.created_at).toLocaleDateString("sk-SK") %>
+</p>
                 <span class="text-xl text-gray-400">·</span>
                 <span class="text-xl text-gray-400">
                   <%= new Date(review.created_at).toLocaleDateString("sk-SK") %>

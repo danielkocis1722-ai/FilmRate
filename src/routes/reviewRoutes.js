@@ -69,28 +69,30 @@ async function loadReviewsPage(queryParams) {
   paginatedValues.push(offset);
 
   const reviewsQuery = `
-    SELECT
-      reviews.id,
-      reviews.user_id,
-      reviews.tmdb_movie_id,
-      reviews.title,
-      reviews.review_text,
-      reviews.rating,
-      reviews.contains_spoilers,
-      reviews.created_at,
-      users.username,
-      users.avatar_url,
-      COUNT(CASE WHEN review_votes.vote_type = 'helpful' THEN 1 END) AS helpful_count,
-      COUNT(CASE WHEN review_votes.vote_type = 'not_helpful' THEN 1 END) AS not_helpful_count
-    FROM reviews
-    JOIN users ON reviews.user_id = users.id
-    LEFT JOIN review_votes ON reviews.id = review_votes.review_id
-    ${whereClause}
-    GROUP BY reviews.id, users.username, users.avatar_url
-    ORDER BY reviews.created_at DESC
-    LIMIT $${paginatedValues.length - 1}
-    OFFSET $${paginatedValues.length}
-  `;
+  SELECT
+    reviews.id,
+    reviews.user_id,
+    reviews.tmdb_movie_id,
+    reviews.title,
+    reviews.review_text,
+    reviews.rating,
+    reviews.contains_spoilers,
+    reviews.created_at,
+    users.username,
+    users.avatar_url,
+    COUNT(DISTINCT CASE WHEN review_votes.vote_type = 'helpful' THEN review_votes.id END) AS helpful_count,
+    COUNT(DISTINCT CASE WHEN review_votes.vote_type = 'not_helpful' THEN review_votes.id END) AS not_helpful_count,
+    COUNT(DISTINCT review_comments.id) AS comments_count
+  FROM reviews
+  JOIN users ON reviews.user_id = users.id
+  LEFT JOIN review_votes ON reviews.id = review_votes.review_id
+  LEFT JOIN review_comments ON reviews.id = review_comments.review_id
+  ${whereClause}
+  GROUP BY reviews.id, users.username, users.avatar_url
+  ORDER BY reviews.created_at DESC
+  LIMIT $${paginatedValues.length - 1}
+  OFFSET $${paginatedValues.length}
+`;
 
   const result = await pool.query(reviewsQuery, paginatedValues);
 
@@ -201,84 +203,64 @@ router.get("/reviews/:id/edit", requireAuth, async (req, res) => {
   const reviewId = Number(req.params.id);
   const userId = req.session.user.id;
 
-  try {
-    const result = await pool.query("SELECT * FROM reviews WHERE id = $1", [
-      reviewId,
-    ]);
+  const result = await pool.query("SELECT * FROM reviews WHERE id = $1", [
+    reviewId,
+  ]);
 
-    const review = result.rows[0];
+  const review = result.rows[0];
 
-    if (!review || review.user_id !== userId) {
-      return res.status(403).send("Nemáš oprávnenie.");
-    }
-
-    res.render("edit-review", { review });
-  } catch (err) {
-    console.error("Load edit review error:", err);
-    res.status(500).send("Chyba pri načítaní recenzie.");
+  if (!review || review.user_id !== userId) {
+    return res.status(403).send("Nemáš oprávnenie.");
   }
+
+  res.render("edit-review", { review });
 });
 
-router.post("/reviews/:id/edit", requireAuth, async (req, res) => {
+router.get("/reviews/:id/comments", requireAuth, async (req, res) => {
   const reviewId = Number(req.params.id);
-  const userId = req.session.user.id;
-  const { reviewTitle, reviewText, rating, containsSpoilers } = req.body;
 
   try {
-    const result = await pool.query(
-      "SELECT user_id FROM reviews WHERE id = $1",
-      [reviewId],
-    );
-
-    if (!result.rows.length || result.rows[0].user_id !== userId) {
-      return res.status(403).send("Nemáš oprávnenie.");
-    }
-
-    await pool.query(
+    // recenzia
+    const reviewResult = await pool.query(
       `
-      UPDATE reviews
-      SET title = $1,
-          review_text = $2,
-          rating = $3,
-          contains_spoilers = $4
-      WHERE id = $5
-      `,
-      [
-        reviewTitle || null,
-        reviewText,
-        Number(rating),
-        containsSpoilers ? true : false,
-        reviewId,
-      ],
-    );
-
-    res.redirect("/profile");
-  } catch (err) {
-    console.error("Edit review error:", err);
-    res.status(500).send("Chyba pri úprave recenzie.");
-  }
-});
-
-router.post("/reviews/:id/delete", requireAuth, async (req, res) => {
-  const reviewId = Number(req.params.id);
-  const userId = req.session.user.id;
-
-  try {
-    const result = await pool.query(
-      "SELECT user_id FROM reviews WHERE id = $1",
+      SELECT
+        reviews.*,
+        users.username
+      FROM reviews
+      JOIN users ON reviews.user_id = users.id
+      WHERE reviews.id = $1
+    `,
       [reviewId],
     );
 
-    if (!result.rows.length || result.rows[0].user_id !== userId) {
-      return res.status(403).send("Nemáš oprávnenie.");
+    if (reviewResult.rows.length === 0) {
+      return res.status(404).send("Recenzia nenájdená.");
     }
 
-    await pool.query("DELETE FROM reviews WHERE id = $1", [reviewId]);
+    const review = reviewResult.rows[0];
 
-    res.redirect("/profile");
+    // komentáre
+    const commentsResult = await pool.query(
+      `
+      SELECT
+        review_comments.*,
+        users.username
+      FROM review_comments
+      JOIN users ON review_comments.user_id = users.id
+      WHERE review_comments.review_id = $1
+      ORDER BY review_comments.created_at ASC
+    `,
+      [reviewId],
+    );
+
+    res.render("review-comments", {
+      review,
+      comments: commentsResult.rows,
+      user: req.session.user || null,
+    });
   } catch (err) {
-    console.error("Delete review error:", err);
-    res.status(500).send("Chyba pri mazaní recenzie.");
+    console.error("Load comments error:", err);
+    res.status(500).send("Chyba pri načítaní komentárov.");
   }
 });
 
@@ -312,6 +294,67 @@ router.post("/reviews/create", requireAuth, async (req, res) => {
     console.error("Create review error:", err);
     res.status(500).send("Chyba pri ukladaní recenzie.");
   }
+});
+
+router.post("/reviews/:id/delete", requireAuth, async (req, res) => {
+  const reviewId = Number(req.params.id);
+  const userId = req.session.user.id;
+
+  try {
+    const result = await pool.query(
+      "SELECT user_id FROM reviews WHERE id = $1",
+      [reviewId],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).send("Recenzia neexistuje.");
+    }
+
+    if (result.rows[0].user_id !== userId) {
+      return res.status(403).send("Nemáš oprávnenie.");
+    }
+
+    await pool.query("DELETE FROM reviews WHERE id = $1", [reviewId]);
+
+    res.redirect("/profile"); // alebo späť
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Chyba pri mazaní.");
+  }
+});
+
+router.post("/reviews/:id/edit", requireAuth, async (req, res) => {
+  const reviewId = Number(req.params.id);
+  const userId = req.session.user.id;
+  const { reviewTitle, reviewText, rating, containsSpoilers } = req.body;
+
+  const result = await pool.query("SELECT user_id FROM reviews WHERE id = $1", [
+    reviewId,
+  ]);
+
+  if (!result.rows.length || result.rows[0].user_id !== userId) {
+    return res.status(403).send("Nemáš oprávnenie.");
+  }
+
+  await pool.query(
+    `
+    UPDATE reviews
+    SET title = $1,
+        review_text = $2,
+        rating = $3,
+        contains_spoilers = $4
+    WHERE id = $5
+    `,
+    [
+      reviewTitle || null,
+      reviewText,
+      Number(rating),
+      containsSpoilers ? true : false,
+      reviewId,
+    ],
+  );
+
+  res.redirect("/profile");
 });
 
 router.post("/api/reviews/:id/vote", requireAuth, async (req, res) => {
@@ -435,6 +478,30 @@ router.post("/reviews/:id/vote", requireAuth, async (req, res) => {
   } catch (err) {
     console.error("Vote error:", err);
     res.status(500).send("Chyba pri hlasovaní.");
+  }
+});
+
+router.post("/reviews/:id/comments", requireAuth, async (req, res) => {
+  const reviewId = Number(req.params.id);
+  const { commentText } = req.body;
+
+  if (!commentText) {
+    return res.status(400).send("Komentár nemôže byť prázdny.");
+  }
+
+  try {
+    await pool.query(
+      `
+      INSERT INTO review_comments (review_id, user_id, comment_text)
+      VALUES ($1, $2, $3)
+    `,
+      [reviewId, req.session.user.id, commentText],
+    );
+
+    res.redirect(`/reviews/${reviewId}/comments`);
+  } catch (err) {
+    console.error("Create comment error:", err);
+    res.status(500).send("Chyba pri ukladaní komentára.");
   }
 });
 

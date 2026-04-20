@@ -140,18 +140,18 @@
                     alt="Placeholder avatar používateľa <%= review.username %>"
                     class="h-12 w-12 rounded-full object-cover"
                   />
-                  <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <a
-  href="/users/<%= review.username %>"
-  class="text-lg font-semibold text-white transition hover:text-[#00c950]"
->
-  <%= review.username %>
-</a>
-                    <span class="text-lg text-gray-400">·</span>
-                    <span class="text-lg text-gray-400">
-                      <%= new Date(review.created_at).toLocaleDateString("sk-SK") %>
-                    </span>
-                  </div>
+                 <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+  <a
+    href="/users/<%= encodeURIComponent(review.username) %>"
+    class="text-lg font-semibold text-white transition hover:text-[#00c950]"
+  >
+    <%= review.username %>
+  </a>
+  <span class="text-lg text-gray-400">·</span>
+  <span class="text-lg text-gray-400">
+    <%= new Date(review.created_at).toLocaleDateString("sk-SK") %>
+  </span>
+</div>
                 </div>
               </div>
 
@@ -214,10 +214,13 @@
     </div>
   <% } %>
 
-  <button class="flex items-center gap-2 text-2xl transition hover:text-gray-300">
-    <span>💬</span>
-    <span class="text-xl">0</span>
-  </button>
+<a 
+  href="/reviews/<%= review.id %>/comments"
+  class="flex items-center gap-2 text-2xl transition hover:text-gray-300"
+>
+  <span>💬</span>
+  <span class="text-xl"><%= review.comments_count %></span>
+</a>
 </div>
             </div>
           </div>
@@ -374,10 +377,13 @@
                   `
               }
 
-              <button class="flex items-center gap-2 text-2xl transition hover:text-gray-300">
-                <span>💬</span>
-                <span class="text-xl">0</span>
-              </button>
+      <a 
+  href="/reviews/${review.id}/comments"
+  class="flex items-center gap-2 text-2xl transition hover:text-gray-300"
+>
+  <span>💬</span>
+  <span class="text-xl">${Number(review.comments_count || 0)}</span>
+</a>
             </div>
           </div>
         </div>
