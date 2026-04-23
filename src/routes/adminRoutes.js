@@ -3,14 +3,11 @@ const router = express.Router();
 const pool = require("../config/db");
 const { requireAdmin } = require("../middleware/adminMiddleware");
 
-// ADMIN DASHBOARD
 router.get("/admin", requireAdmin, (req, res) => {
   res.render("admin");
 });
 
-// ===== REVIEWS =====
 
-// všetky recenzie
 router.get("/admin/reviews", requireAdmin, async (req, res) => {
   const result = await pool.query(`
     SELECT reviews.*, users.username
@@ -24,7 +21,6 @@ router.get("/admin/reviews", requireAdmin, async (req, res) => {
   });
 });
 
-// delete recenzie
 router.post("/admin/reviews/:id/delete", requireAdmin, async (req, res) => {
   const reviewId = req.params.id;
 
@@ -33,9 +29,7 @@ router.post("/admin/reviews/:id/delete", requireAdmin, async (req, res) => {
   res.redirect("/admin/reviews");
 });
 
-// ===== USERS =====
 
-// všetci používatelia
 router.get("/admin/users", requireAdmin, async (req, res) => {
   const result = await pool.query(`
     SELECT id, username, email, role, created_at
@@ -48,7 +42,6 @@ router.get("/admin/users", requireAdmin, async (req, res) => {
   });
 });
 
-// delete user (CASCADE zmaže aj recenzie)
 router.post("/admin/users/:id/delete", requireAdmin, async (req, res) => {
   const userId = req.params.id;
 

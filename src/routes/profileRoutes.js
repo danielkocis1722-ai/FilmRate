@@ -239,7 +239,6 @@ router.post(
     }
   },
 );
-// TODO - if file too large, catch multer error and show message
 // TODO - pridat moznost zmenit heslo
 // TODO - vymazat fotku z disku pri nahrani novej
 
