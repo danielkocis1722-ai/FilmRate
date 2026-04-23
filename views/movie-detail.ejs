@@ -106,20 +106,30 @@
       <h2 class="text-4xl font-extrabold sm:text-5xl">Účinkujú</h2>
 
       <div class="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
-        <% movie.cast.forEach(actor => { %>
-          <article class="overflow-hidden bg-[#171c29]">
-            <img
-              src="<%= actor.image %>"
-              alt="Fotografia herca <%= actor.name %>"
-              class="aspect-4/5 h-full w-full object-cover"
-            />
-            <div class="p-3">
-              <h3 class="text-base font-bold text-white"><%= actor.name %></h3>
-              <p class="text-sm text-gray-300"><%= actor.role %></p>
-            </div>
-          </article>
-        <% }) %>
+  <% movie.cast.forEach(actor => { %>
+    <article class="group overflow-hidden rounded-2xl bg-[#171c29] shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
+      <div class="relative aspect-4/5 overflow-hidden">
+        <img
+          src="<%= actor.image %>"
+          alt="Fotografia herca <%= actor.name %>"
+          class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+        />
+
+        <div class="absolute inset-0 bg-linear-to-t from-black/90 via-black/25 to-transparent"></div>
+
+        <div class="absolute inset-x-0 bottom-0 p-4">
+          <h3 class="translate-y-5 text-base font-bold text-white transition duration-300 group-hover:translate-y-0">
+            <%= actor.name %>
+          </h3>
+
+          <p class="mt-2 translate-y-4 opacity-0 text-sm text-gray-200 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+            <%= actor.role || "Neznáma postava" %>
+          </p>
+        </div>
       </div>
+    </article>
+  <% }) %>
+</div>
     </div>
   </section>
 
@@ -147,86 +157,7 @@
 
     <div class="mt-10 space-y-8">
       <% movie.reviews.forEach(review => { %>
-        <article class="rounded-4xl bg-[#171c29] p-6 shadow-[0_10px_40px_rgba(0,0,0,0.35)] sm:p-8">
-          <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div class="flex items-center gap-3">
-              <img
-                src="<%= review.avatar_url || 'https://placehold.co/48x48?text=AV' %>"
-                alt="Avatar používateľa <%= review.username %>"
-                class="h-12 w-12 rounded-full object-cover"
-              />
-              <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <p class="text-sm text-gray-400">
- <a
-  href="/users/<%= review.username %>"
-  class="text-lg font-semibold text-white transition hover:text-[#00c950]"
->
-  <%= review.username %>
-</a>
-  ·
-  <%= new Date(comment.created_at).toLocaleDateString("sk-SK") %>
-</p>
-                <span class="text-xl text-gray-400">·</span>
-                <span class="text-xl text-gray-400">
-                  <%= new Date(review.created_at).toLocaleDateString("sk-SK") %>
-                </span>
-              </div>
-            </div>
-
-            <div class="text-left sm:text-right">
-              <span class="text-3xl font-semibold text-white">⭐ <%= review.rating %>/10</span>
-            </div>
-          </div>
-
-          <% if (review.title) { %>
-            <h3 class="mt-6 text-2xl font-bold sm:text-3xl"><%= review.title %></h3>
-          <% } %>
-
-          <p class="mt-6 text-base leading-7 text-gray-300 sm:text-2xl sm:leading-8">
-            <%= review.review_text %>
-          </p>
-
-          <% if (review.contains_spoilers) { %>
-            <p class="mt-4 inline-block rounded-full bg-red-500/15 px-4 py-2 text-sm font-medium text-red-300">
-              Obsahuje spoilery
-            </p>
-          <% } %>
-
-          <div class="mt-8 flex items-center justify-end gap-4 text-white">
-  <% if (user && user.id !== review.user_id) { %>
-    <form action="/reviews/<%= review.id %>/vote" method="POST">
-      <input type="hidden" name="voteType" value="helpful" />
-      <button class="flex items-center gap-2 text-2xl transition hover:text-gray-300">
-        <span class="cursor-pointer">👍</span>
-        <span class="text-xl"><%= review.helpful_count %></span>
-      </button>
-    </form>
-
-    <form action="/reviews/<%= review.id %>/vote" method="POST">
-      <input type="hidden" name="voteType" value="not_helpful" />
-      <button class="flex items-center gap-2 text-2xl transition hover:text-gray-300">
-        <span class="cursor-pointer">👎</span>
-        <span class="text-xl"><%= review.not_helpful_count %></span>
-      </button>
-    </form>
-  <% } else { %>
-    <div class="flex items-center gap-2 text-2xl text-white/80">
-      <span class="cursor-pointer">👍</span>
-      <span class="text-xl"><%= review.helpful_count %></span>
-    </div>
-
-    <div class="flex items-center gap-2 text-2xl text-white/80">
-      <span class="cursor-pointer">👎</span>
-      <span class="text-xl"><%= review.not_helpful_count %></span>
-    </div>
-  <% } %>
-
-  <button class="flex items-center gap-2 text-2xl transition hover:text-gray-300">
-    <span>💬</span>
-    <span class="text-xl">0</span>
-  </button>
-</div>
-        </article>
+        <%- include("partials/review-card", { review, user }) %>
       <% }) %>
     </div>
   </div>

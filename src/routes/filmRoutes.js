@@ -114,36 +114,46 @@ router.get("/movies/:id", async (req, res) => {
       tmdbService.getMovieDetails(movieId),
       tmdbService.getMovieCredits(movieId),
       pool.query(
-        `
-        SELECT
-          reviews.id,
-          reviews.user_id,
-          reviews.tmdb_movie_id,
-          reviews.title,
-          reviews.review_text,
-          reviews.rating,
-          reviews.contains_spoilers,
-          reviews.created_at,
-          users.username,
-          users.avatar_url,
-          COUNT(CASE WHEN review_votes.vote_type = 'helpful' THEN 1 END) AS helpful_count,
-          COUNT(CASE WHEN review_votes.vote_type = 'not_helpful' THEN 1 END) AS not_helpful_count
-        FROM reviews
-        JOIN users ON reviews.user_id = users.id
-        LEFT JOIN review_votes ON reviews.id = review_votes.review_id
-        WHERE reviews.tmdb_movie_id = $1
-        GROUP BY reviews.id, users.username, users.avatar_url
-        ORDER BY reviews.created_at DESC
-        `,
-        [movieId],
-      ),
+      `
+      SELECT
+        reviews.id,
+        reviews.user_id,
+        reviews.tmdb_movie_id,
+        reviews.title,
+        reviews.review_text,
+        reviews.rating,
+        reviews.contains_spoilers,
+        reviews.created_at,
+        users.username,
+        users.avatar_url,
+        COUNT(DISTINCT CASE WHEN review_votes.vote_type = 'helpful' THEN review_votes.id END) AS helpful_count,
+        COUNT(DISTINCT CASE WHEN review_votes.vote_type = 'not_helpful' THEN review_votes.id END) AS not_helpful_count,
+        COUNT(DISTINCT review_comments.id) AS comments_count
+      FROM reviews
+      JOIN users ON reviews.user_id = users.id
+      LEFT JOIN review_votes ON reviews.id = review_votes.review_id
+      LEFT JOIN review_comments ON reviews.id = review_comments.review_id
+      WHERE reviews.tmdb_movie_id = $1
+      GROUP BY reviews.id, users.username, users.avatar_url
+      ORDER BY reviews.created_at DESC
+      `,
+      [movieId],
+    ),
     ]);
 
     const director =
       credits.crew.find((person) => person.job === "Director")?.name ||
       "Neznámy režisér";
 
-    const movie = {
+    const reviewsWithExtras = reviewsResult.rows.map((review) => ({
+  ...review,
+  movieTitle: details.title,
+  moviePoster:
+    tmdbService.buildImageUrl(config, "w500", details.poster_path) ||
+    "https://placehold.co/220x300?text=Poster",
+}));
+
+      const movie = {
       id: details.id,
       title: details.title,
       director,
@@ -166,7 +176,8 @@ router.get("/movies/:id", async (req, res) => {
           tmdbService.buildImageUrl(config, "w300", actor.profile_path) ||
           "https://placehold.co/220x260?text=Actor",
       })),
-      reviews: reviewsResult.rows,
+      reviews: reviewsWithExtras,
+      
     };
 
     res.render("movie-detail", { movie });
