@@ -1,192 +1,225 @@
 <!DOCTYPE html>
 <html lang="sk">
-<head>
-  <%- include("partials/head", { title: `${movie.title} | FilmRate` }) %>
-</head>
-<body class="min-h-screen bg-[#05070d] text-white">
+  <head>
+    <%- include("partials/head", { title: `${movie.title} | FilmRate` }) %>
+  </head>
+  <body class="min-h-screen bg-[#05070d] text-white">
+    <%- include("partials/navbar") %>
 
-  <%- include("partials/navbar") %>
-
-  <section class="relative overflow-hidden">
-    <div class="absolute inset-0">
-      <img
-        src="<%= movie.backdrop %>"
-        alt="Backdrop filmu <%= movie.title %>"
-        class="h-full w-full object-cover"
-      />
-      <div class="absolute inset-0 bg-black/75"></div>
-      <div class="absolute inset-0 bg-linear-to-b from-black/55 via-black/45 to-[#05070d]"></div>
-    </div>
-
-    <div class="relative z-10 mx-auto max-w-7xl px-6 pb-14 pt-12 sm:pb-18 sm:pt-16">
-      <div class="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
-        <div class="flex-1">
-          <div class="flex flex-col gap-4">
-            <div class="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-center">
-              <h1 class="text-4xl font-extrabold leading-tight sm:text-5xl lg:text-7xl">
-                <%= movie.title %>
-              </h1>
-
-              <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-lg text-gray-300 sm:text-2xl">
-                <span>• <%= movie.director %></span>
-                <span>• <%= movie.duration %></span>
-                <span>• <%= movie.year %></span>
-              </div>
-            </div>
-
-            <div class="mt-4 flex flex-col gap-8 md:flex-row md:items-start">
-              <div class="w-full max-w-64 shrink-0">
-                <img
-                  src="<%= movie.poster %>"
-                  alt="Poster filmu <%= movie.title %>"
-                  class="h-full w-full rounded-sm object-cover shadow-[0_10px_40px_rgba(0,0,0,0.45)]"
-                />
-              </div>
-
-              <div class="max-w-3xl pt-1">
-               <p
-  id="movie-description"
-  class="mt-6 max-w-3xl text-base leading-7 text-gray-200 sm:text-2xl sm:leading-9"
-  data-full="<%= movie.description || '' %>"
->
-  <%= movie.description
-    ? (movie.description.length > 250
-        ? movie.description.slice(0, 250) + "..."
-        : movie.description)
-    : "Bez popisu." %>
-</p>
-
-<% if (movie.description && movie.description.length > 250) { %>
-  <button
-    id="toggle-description"
-    class="mt-4 text-lg font-medium text-violet-400 transition hover:text-violet-300"
-  >
-    Zobraziť viac
-  </button>
-<% } %>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <aside class="w-full max-w-90 shrink-0">
-          <div class="rounded-4xl bg-[#171c29]/95 p-8 shadow-[0_10px_40px_rgba(0,0,0,0.35)] backdrop-blur-sm">
-            <div class="mb-10 flex items-center gap-4">
-              <img
-                src="/images/logo.png"
-                alt="FilmRate logo"
-                class="h-14 w-auto object-contain"
-              />
-              <span class="text-3xl font-extrabold text-white">
-                Film<span class="text-green-500">Rate</span>
-              </span>
-            </div>
-
-            <div class="text-center">
-              <p class="text-6xl font-extrabold text-white sm:text-7xl"><%= movie.rating %>/10</p>
-              <div class="mx-auto mt-4 h-px w-full max-w-44 bg-white/40"></div>
-            </div>
-
-            <div class="mt-8">
-              <a
-                href="/movies/<%= movie.id %>/review/create"
-                class="inline-flex w-full items-center justify-center rounded-lg bg-[#738b58] px-6 py-4 text-2xl font-semibold text-white transition hover:bg-[#829d64]"
-              >
-                Vytvoriť recenziu
-              </a>
-            </div>
-          </div>
-        </aside>
-      </div>
-    </div>
-  </section>
-
-  <section class="bg-black px-6 py-12">
-    <div class="mx-auto max-w-7xl">
-      <h2 class="text-4xl font-extrabold sm:text-5xl">Účinkujú</h2>
-
-      <div class="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
-  <% movie.cast.forEach(actor => { %>
-    <article class="group overflow-hidden rounded-2xl bg-[#171c29] shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
-      <div class="relative aspect-4/5 overflow-hidden">
+    <section class="relative overflow-hidden">
+      <div class="absolute inset-0">
         <img
-          src="<%= actor.image %>"
-          alt="Fotografia herca <%= actor.name %>"
-          class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          src="<%= movie.backdrop %>"
+          alt="Backdrop filmu <%= movie.title %>"
+          class="h-full w-full object-cover"
         />
+        <div class="absolute inset-0 bg-black/75"></div>
+        <div
+          class="absolute inset-0 bg-linear-to-b from-black/55 via-black/45 to-[#05070d]"
+        ></div>
+      </div>
 
-        <div class="absolute inset-0 bg-linear-to-t from-black/90 via-black/25 to-transparent"></div>
+      <div
+        class="relative z-10 mx-auto max-w-7xl px-6 pb-14 pt-12 sm:pb-18 sm:pt-16"
+      >
+        <div
+          class="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between"
+        >
+          <div class="flex-1">
+            <div class="flex flex-col gap-4">
+              <div
+                class="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-center"
+              >
+                <h1
+                  class="text-4xl font-extrabold leading-tight sm:text-5xl lg:text-7xl"
+                >
+                  <%= movie.title %>
+                </h1>
 
-        <div class="absolute inset-x-0 bottom-0 p-4">
-          <h3 class="translate-y-5 text-base font-bold text-white transition duration-300 group-hover:translate-y-0">
-            <%= actor.name %>
-          </h3>
+                <div
+                  class="flex flex-wrap items-center gap-x-4 gap-y-2 text-lg text-gray-300 sm:text-2xl"
+                >
+                  <span
+                    >•
+                    <%= movie.director %></span
+                  >
+                  <span
+                    >•
+                    <%= movie.duration %></span
+                  >
+                  <span
+                    >•
+                    <%= movie.year %></span
+                  >
+                </div>
+              </div>
 
-          <p class="mt-2 translate-y-4 opacity-0 text-sm text-gray-200 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-            <%= actor.role || "Neznáma postava" %>
-          </p>
+              <div class="mt-4 flex flex-col gap-8 md:flex-row md:items-start">
+                <div class="w-full max-w-64 shrink-0">
+                  <img
+                    src="<%= movie.poster %>"
+                    alt="Poster filmu <%= movie.title %>"
+                    class="h-full w-full rounded-sm object-cover shadow-[0_10px_40px_rgba(0,0,0,0.45)]"
+                  />
+                </div>
+
+                <div class="max-w-3xl pt-1">
+                  <p
+                    id="movie-description"
+                    class="mt-6 max-w-3xl text-base leading-7 text-gray-200 sm:text-2xl sm:leading-9"
+                    data-full="<%= movie.description || '' %>"
+                  >
+                    <%= movie.description ? (movie.description.length > 250 ?
+                    movie.description.slice(0, 250) + "..." : movie.description)
+                    : "Bez popisu." %>
+                  </p>
+
+                  <% if (movie.description && movie.description.length > 250) {
+                  %>
+                  <button
+                    id="toggle-description"
+                    class="mt-4 text-lg font-medium text-violet-400 transition hover:text-violet-300"
+                  >
+                    Zobraziť viac
+                  </button>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="w-full max-w-90 shrink-0">
+            <div
+              class="rounded-4xl bg-[#171c29]/95 p-8 shadow-[0_10px_40px_rgba(0,0,0,0.35)] backdrop-blur-sm"
+            >
+              <div class="mb-10 flex items-center gap-4">
+                <img
+                  src="/images/logo.png"
+                  alt="FilmRate logo"
+                  class="h-14 w-auto object-contain"
+                />
+                <span class="text-3xl font-extrabold text-white">
+                  Film<span class="text-green-500">Rate</span>
+                </span>
+              </div>
+
+              <div class="text-center">
+                <p class="text-6xl font-extrabold text-white sm:text-7xl">
+                  <%= movie.rating %>/10
+                </p>
+                <div
+                  class="mx-auto mt-4 h-px w-full max-w-44 bg-white/40"
+                ></div>
+              </div>
+
+              <div class="mt-8">
+                <a
+                  href="/movies/<%= movie.id %>/review/create"
+                  class="inline-flex w-full items-center justify-center rounded-lg bg-[#738b58] px-6 py-4 text-2xl font-semibold text-white transition hover:bg-[#829d64]"
+                >
+                  Vytvoriť recenziu
+                </a>
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
-    </article>
-  <% }) %>
-</div>
-    </div>
-  </section>
+    </section>
 
-<section class="bg-[#07101d] px-6 py-12 sm:py-14">
-  <div class="mx-auto max-w-7xl">
-    <h2 class="text-5xl font-extrabold sm:text-6xl">Recenzie</h2>
+    <section class="bg-black px-6 py-12">
+      <div class="mx-auto max-w-7xl">
+        <h2 class="text-4xl font-extrabold sm:text-5xl">Účinkujú</h2>
 
-    <% if (movie.reviews.length === 0) { %>
-      <div class="mt-10 rounded-4xl bg-[#171c29] p-8 text-center shadow-[0_10px_40px_rgba(0,0,0,0.35)]">
-        <h3 class="text-3xl font-bold">Zatiaľ tu nie sú žiadne recenzie</h3>
-        <p class="mt-4 text-lg text-gray-300">
-          Buď prvý, kto pridá recenziu k tomuto filmu.
-        </p>
-
-        <div class="mt-8">
-          <a
-            href="/movies/<%= movie.id %>/review/create"
-            class="inline-flex items-center justify-center rounded-lg bg-[#738b58] px-8 py-4 text-xl font-semibold text-white transition hover:bg-[#829d64]"
+        <div class="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
+          <% movie.cast.forEach(actor => { %>
+          <article
+            class="group overflow-hidden rounded-2xl bg-[#171c29] shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
           >
-            Vytvoriť recenziu
-          </a>
+            <div class="relative aspect-4/5 overflow-hidden">
+              <img
+                src="<%= actor.image %>"
+                alt="Fotografia herca <%= actor.name %>"
+                class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+              />
+
+              <div
+                class="absolute inset-0 bg-linear-to-t from-black/90 via-black/25 to-transparent"
+              ></div>
+
+              <div class="absolute inset-x-0 bottom-0 p-4">
+                <h3
+                  class="translate-y-5 text-base font-bold text-white transition duration-300 group-hover:translate-y-0"
+                >
+                  <%= actor.name %>
+                </h3>
+
+                <p
+                  class="mt-2 translate-y-4 opacity-0 text-sm text-gray-200 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100"
+                >
+                  <%= actor.role || "Neznáma postava" %>
+                </p>
+              </div>
+            </div>
+          </article>
+          <% }) %>
         </div>
       </div>
-    <% } %>
+    </section>
 
-    <div class="mt-10 space-y-8">
-      <% movie.reviews.forEach(review => { %>
-        <%- include("partials/review-card", { review, user }) %>
-      <% }) %>
-    </div>
-  </div>
-</section>
+    <section class="bg-[#07101d] px-6 py-12 sm:py-14">
+      <div class="mx-auto max-w-7xl">
+        <h2 class="text-5xl font-extrabold sm:text-6xl">Recenzie</h2>
 
-  <%- include("partials/footer") %>
+        <% if (movie.reviews.length === 0) { %>
+        <div
+          class="mt-10 rounded-4xl bg-[#171c29] p-8 text-center shadow-[0_10px_40px_rgba(0,0,0,0.35)]"
+        >
+          <h3 class="text-3xl font-bold">Zatiaľ tu nie sú žiadne recenzie</h3>
+          <p class="mt-4 text-lg text-gray-300">
+            Buď prvý, kto pridá recenziu k tomuto filmu.
+          </p>
 
-</body>
+          <div class="mt-8">
+            <a
+              href="/movies/<%= movie.id %>/review/create"
+              class="inline-flex items-center justify-center rounded-lg bg-[#738b58] px-8 py-4 text-xl font-semibold text-white transition hover:bg-[#829d64]"
+            >
+              Vytvoriť recenziu
+            </a>
+          </div>
+        </div>
+        <% } %>
 
-<script>
-  const desc = document.getElementById("movie-description");
-  const btn = document.getElementById("toggle-description");
+        <div class="mt-10 space-y-8">
+          <% movie.reviews.forEach(review => { %>
+          <%- include("partials/review-card", { review, user }) %>
+          <% }) %>
+        </div>
+      </div>
+    </section>
 
-  if (desc && btn) {
-    const fullText = desc.dataset.full;
-    const shortText = fullText.length > 250
-      ? fullText.slice(0, 250) + "..."
-      : fullText;
+    <%- include("partials/footer") %>
+  </body>
 
-    let expanded = false;
+  <script>
+    const desc = document.getElementById("movie-description");
+    const btn = document.getElementById("toggle-description");
 
-    btn.addEventListener("click", () => {
-      expanded = !expanded;
+    if (desc && btn) {
+      const fullText = desc.dataset.full;
+      const shortText =
+        fullText.length > 250 ? fullText.slice(0, 250) + "..." : fullText;
 
-      desc.textContent = expanded ? fullText : shortText;
-      btn.textContent = expanded ? "Zobraziť menej" : "Zobraziť viac";
-    });
-  }
-</script>
+      let expanded = false;
+
+      btn.addEventListener("click", () => {
+        expanded = !expanded;
+
+        desc.textContent = expanded ? fullText : shortText;
+        btn.textContent = expanded ? "Zobraziť menej" : "Zobraziť viac";
+      });
+    }
+  </script>
 </html>
 
 <!-- TODO actor names and hover effects first just name after hover reveal transition name goes up and from underneath card goes text what character they play -->

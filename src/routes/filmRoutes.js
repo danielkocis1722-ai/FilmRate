@@ -45,7 +45,11 @@ router.get("/movies/:id", async (req, res) => {
       getMovieReviews(movieId),
     ]);
 
-    const reviewsWithExtras = attachMovieInfoToReviews(reviews, details, config);
+    const reviewsWithExtras = attachMovieInfoToReviews(
+      reviews,
+      details,
+      config,
+    );
     const movie = buildMovieDetail(details, credits, config, reviewsWithExtras);
 
     res.render("movie-detail", { movie });
@@ -59,4 +63,3 @@ router.get("/movies/:id", async (req, res) => {
 });
 
 module.exports = router;
-

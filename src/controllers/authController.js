@@ -2,22 +2,28 @@ const bcrypt = require("bcrypt");
 const pool = require("../config/db");
 
 exports.getRegisterPage = (req, res) => {
-  res.render("register");
+  res.render("register", { error: null });
 };
 
 exports.postRegister = async (req, res) => {
   const { username, email, password, confirmPassword, terms } = req.body;
 
   if (!username || !email || !password || !confirmPassword) {
-    return res.status(400).send("Vyplň všetky polia.");
+    return res.status(400).render("register", {
+      error: "Vyplň všetky polia.",
+    });
   }
 
   if (password !== confirmPassword) {
-    return res.status(400).send("Heslá sa nezhodujú.");
+    return res.status(400).render("register", {
+      error: "Heslá sa nezhodujú.",
+    });
   }
 
   if (!terms) {
-    return res.status(400).send("Musíš súhlasiť s podmienkami.");
+    return res.status(400).render("register", {
+      error: "Musíš súhlasiť s podmienkami.",
+    });
   }
 
   try {
@@ -27,9 +33,9 @@ exports.postRegister = async (req, res) => {
     );
 
     if (existingUser.rows.length > 0) {
-      return res
-        .status(400)
-        .send("Používateľské meno alebo e-mail už existuje.");
+      return res.status(400).render("register", {
+        error: "Používateľské meno alebo e-mail už existuje.",
+      });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
@@ -46,26 +52,32 @@ exports.postRegister = async (req, res) => {
     req.session.save((err) => {
       if (err) {
         console.error("Session save error:", err);
-        return res.status(500).send("Chyba pri ukladaní session.");
+        return res.status(500).render("register", {
+          error: "Chyba pri ukladaní session.",
+        });
       }
 
       res.redirect(req.query.redirect || "/");
     });
   } catch (error) {
     console.error("Register error:", error);
-    res.status(500).send("Chyba pri registrácii.");
+    res.status(500).render("register", {
+      error: "Chyba pri registrácii.",
+    });
   }
 };
 
 exports.getLoginPage = (req, res) => {
-  res.render("login");
+  res.render("login", { error: null });
 };
 
 exports.postLogin = async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    return res.status(400).send("Vyplň prihlasovacie údaje.");
+    return res.status(400).render("login", {
+      error: "Vyplň prihlasovacie údaje.",
+    });
   }
 
   try {
@@ -74,7 +86,9 @@ exports.postLogin = async (req, res) => {
     ]);
 
     if (result.rows.length === 0) {
-      return res.status(400).send("Nesprávne prihlasovacie údaje.");
+      return res.status(400).render("login", {
+        error: "Zadali ste nesprávne prihlasovacie údaje.",
+      });
     }
 
     const user = result.rows[0];
@@ -82,7 +96,9 @@ exports.postLogin = async (req, res) => {
     const passwordMatches = await bcrypt.compare(password, user.password_hash);
 
     if (!passwordMatches) {
-      return res.status(400).send("Nesprávne prihlasovacie údaje.");
+      return res.status(400).render("login", {
+        error: "Zadali ste nesprávne prihlasovacie údaje.",
+      });
     }
 
     req.session.user = {
@@ -102,7 +118,9 @@ exports.postLogin = async (req, res) => {
     });
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).send("Chyba pri prihlasovaní.");
+    res.status(500).render("login", {
+      error: "Nastala chyba pri prihlasovaní.",
+    });
   }
 };
 

@@ -7,7 +7,6 @@ router.get("/admin", requireAdmin, (req, res) => {
   res.render("admin");
 });
 
-
 router.get("/admin/reviews", requireAdmin, async (req, res) => {
   const result = await pool.query(`
     SELECT reviews.*, users.username
@@ -28,7 +27,6 @@ router.post("/admin/reviews/:id/delete", requireAdmin, async (req, res) => {
 
   res.redirect("/admin/reviews");
 });
-
 
 router.get("/admin/users", requireAdmin, async (req, res) => {
   const result = await pool.query(`

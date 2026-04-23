@@ -134,7 +134,8 @@ async function attachMovieInfoToReviews(reviews) {
   return reviews.map((review) => ({
     ...review,
     movieTitle:
-      moviesInfoMap[Number(review.tmdb_movie_id)]?.title || FALLBACK_MOVIE_TITLE,
+      moviesInfoMap[Number(review.tmdb_movie_id)]?.title ||
+      FALLBACK_MOVIE_TITLE,
     moviePoster:
       moviesInfoMap[Number(review.tmdb_movie_id)]?.poster || FALLBACK_POSTER,
   }));
@@ -231,17 +232,15 @@ async function saveVote({ reviewId, userId, voteType }) {
     const existingVote = existingVoteResult.rows[0];
 
     if (existingVote.vote_type !== voteType) {
-      await pool.query(
-        "UPDATE review_votes SET vote_type = $1 WHERE id = $2",
-        [voteType, existingVote.id],
-      );
+      await pool.query("UPDATE review_votes SET vote_type = $1 WHERE id = $2", [
+        voteType,
+        existingVote.id,
+      ]);
     }
   }
 
   return getVoteCounts(reviewId);
 }
-
-
 
 module.exports = {
   loadReviewsPage,
@@ -252,4 +251,4 @@ module.exports = {
   getVoteCounts,
   getReviewVoteTarget,
   saveVote,
-};  
+};

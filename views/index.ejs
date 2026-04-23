@@ -1,151 +1,186 @@
 <!DOCTYPE html>
 <html lang="sk">
-<head>
-  <%- include("partials/head", { title: "FilmRate" }) %>
-</head>
-<body class="bg-black text-white min-h-screen">
+  <head>
+    <%- include("partials/head", { title: "FilmRate" }) %>
+  </head>
+  <body class="bg-black text-white min-h-screen">
+    <%- include("partials/navbar") %>
 
-  <%- include("partials/navbar") %>
-
-  <!-- HERO -->
-  <section class="relative min-h-screen overflow-hidden">
-    <div class="absolute inset-0">
-      <img
-        src="/images/hero-cinema.jpg"
-        alt="Kino"
-        class="h-full w-full object-cover"
-      />
-      <div class="absolute inset-0 bg-black/60"></div>
-    </div>
-
-    <div class="relative z-10 mx-auto flex min-h-screen max-w-7xl items-center justify-center px-6 text-center">
-      <div class="w-full max-w-4xl">
-
-        <h1 class="mx-auto max-w-4xl text-4xl font-extrabold leading-tight text-white sm:text-5xl lg:text-7xl">
-          Objavuj filmy. Píš recenzie.
-          <br class="hidden sm:block" />
-          Hodnoť názory iných.
-        </h1>
-
-      <form method="GET" action="/movies" class="mx-auto mt-8 max-w-3xl">
-          <div class="relative">
-            <span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-              🔍
-            </span>
-      <input
-  type="text"
-  name="q"
-  placeholder="Hľadaj film..."
-  class="w-full rounded-lg border border-white/20 bg-white/90 py-3 pl-11 pr-4 text-base text-black outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 sm:text-lg"
-/>
-          </div>
-        </form>
-      </div>
-    </div>
-  </section>
-
-  <!-- NAJNOVŠIE FILMY -->
-  <section class="bg-black px-6 py-16 sm:py-20">
-    <div class="mb-10 flex items-center gap-4"> <span class="text-3xl">🎞️</span> <h2 class="text-3xl font-extrabold sm:text-5xl">Najnovšie filmy</h2> </div>
- <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-  <% latestMovies.forEach(movie => { %>
-    <article class="overflow-hidden rounded-3xl bg-[#0d1220] shadow-[0_10px_40px_rgba(0,0,0,0.45)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(0,0,0,0.55)]">
-      <div class="aspect-3/4 overflow-hidden">
-        <a href="/movies/<%= movie.id %>">
-          <img
-            src="<%= movie.poster %>"
-            alt="Poster filmu <%= movie.title %>"
-            class="h-full w-full object-cover"
-          />
-        </a>
+    <!-- HERO -->
+    <section class="relative min-h-screen overflow-hidden">
+      <div class="absolute inset-0">
+        <img
+          src="/images/hero-cinema.jpg"
+          alt="Kino"
+          class="h-full w-full object-cover"
+        />
+        <div class="absolute inset-0 bg-black/60"></div>
       </div>
 
-      <div class="p-4">
-        <h3 class="text-xl font-semibold"><%= movie.title %></h3>
-
-        <p class="mt-1 text-sm text-gray-400">
-          <%= movie.year %> · <%= movie.director %>
-        </p>
-
-        <p class="mt-3 line-clamp-2 text-sm text-gray-500">
-          <%= movie.cast.length ? movie.cast.join(", ") : "Obsadenie nie je dostupné." %>
-        </p>
-
-        <div class="mt-5 flex items-center justify-between">
-          <a
-            href="/movies/<%= movie.id %>"
-            class="text-sm text-violet-400 transition hover:text-violet-300"
+      <div
+        class="relative z-10 mx-auto flex min-h-screen max-w-7xl items-center justify-center px-6 text-center"
+      >
+        <div class="w-full max-w-4xl">
+          <h1
+            class="mx-auto max-w-4xl text-4xl font-extrabold leading-tight text-white sm:text-5xl lg:text-7xl"
           >
-            Zobraziť detail
-          </a>
-          <span class="text-sm font-medium text-yellow-400">⭐ <%= movie.rating %>/10</span>
+            Objavuj filmy. Píš recenzie.
+            <br class="hidden sm:block" />
+            Hodnoť názory iných.
+          </h1>
+
+          <form method="GET" action="/movies" class="mx-auto mt-8 max-w-3xl">
+            <div class="relative">
+              <span
+                class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              >
+                🔍
+              </span>
+              <input
+                type="text"
+                name="q"
+                placeholder="Hľadaj film..."
+                class="w-full rounded-lg border border-white/20 bg-white/90 py-3 pl-11 pr-4 text-base text-black outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 sm:text-lg"
+              />
+            </div>
+          </form>
         </div>
       </div>
-    </article>
-  <% }) %>
-</div>
-  </section>
+    </section>
 
-  <!-- NAJNOVŠIE RECENZIE -->
-  <section class="bg-linear-to-b from-[#05070d] to-[#07101d] px-6 py-16 sm:py-20">
-    <div class="mb-10 flex items-center gap-4"> <span class="text-4xl text-yellow-400">⭐</span> <h2 class="text-3xl font-extrabold sm:text-5xl">Najnovšie recenzie</h2> </div>
-   <div class="grid gap-8 lg:grid-cols-2">
-  <% latestReviews.forEach(review => { %>
-    <article class="rounded-3xl bg-white/10 p-6 shadow-[0_10px_40px_rgba(0,0,0,0.35)] backdrop-blur-sm">
-      <div class="flex items-start justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <a href="/users/<%= review.username %>">
-            <img
-              src="<%= review.avatar %>"
-              alt="Avatar používateľa <%= review.username %>"
-              class="h-12 w-12 rounded-full object-cover"
-            />
-          </a>
-          <div>
-            <a
-              href="/users/<%= review.username %>"
-              class="font-semibold text-white transition hover:text-[#00c950]"
-            >
-              <%= review.username %>
+    <!-- NAJNOVŠIE FILMY -->
+    <section class="bg-black px-6 py-16 sm:py-20">
+      <div class="mb-10 flex items-center gap-4">
+        <span class="text-3xl">🎞️</span>
+        <h2 class="text-3xl font-extrabold sm:text-5xl">Najnovšie filmy</h2>
+      </div>
+      <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <% latestMovies.forEach(movie => { %>
+        <article
+          class="overflow-hidden rounded-3xl bg-[#0d1220] shadow-[0_10px_40px_rgba(0,0,0,0.45)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(0,0,0,0.55)]"
+        >
+          <div class="aspect-3/4 overflow-hidden">
+            <a href="/movies/<%= movie.id %>">
+              <img
+                src="<%= movie.poster %>"
+                alt="Poster filmu <%= movie.title %>"
+                class="h-full w-full object-cover"
+              />
             </a>
-            <p class="text-sm text-gray-400">
-              <%= new Date(review.created_at).toLocaleDateString("sk-SK") %>
-            </p>
           </div>
-        </div>
 
-        <div class="text-right">
-          <span class="text-xl font-bold text-white">⭐ <%= review.rating %>/10</span>
-        </div>
+          <div class="p-4">
+            <h3 class="text-xl font-semibold"><%= movie.title %></h3>
+
+            <p class="mt-1 text-sm text-gray-400">
+              <%= movie.year %> · <%= movie.director %>
+            </p>
+
+            <p class="mt-3 line-clamp-2 text-sm text-gray-500">
+              <%= movie.cast.length ? movie.cast.join(", ") : "Obsadenie nie je
+              dostupné." %>
+            </p>
+
+            <div class="mt-5 flex items-center justify-between">
+              <a
+                href="/movies/<%= movie.id %>"
+                class="text-sm text-violet-400 transition hover:text-violet-300"
+              >
+                Zobraziť detail
+              </a>
+              <span class="text-sm font-medium text-yellow-400"
+                >⭐ <%= movie.rating %>/10</span
+              >
+            </div>
+          </div>
+        </article>
+        <% }) %>
       </div>
+    </section>
 
-      <% if (review.title) { %>
-        <h3 class="mt-6 text-3xl font-semibold"><%= review.title %></h3>
-      <% } else { %>
-        <h3 class="mt-6 text-3xl font-semibold">Bez nadpisu</h3>
-      <% } %>
-
-      <p class="mt-2 text-lg font-medium text-[#00c950]">
-        <a href="/movies/<%= review.tmdb_movie_id %>" class="transition hover:opacity-80">
-          <%= review.movieTitle %>
-        </a>
-      </p>
-
-      <p class="mt-4 line-clamp-4 text-base leading-7 text-gray-300">
-        <%= review.review_text %>
-      </p>
-
-      <div class="mt-8 flex items-center justify-end gap-6 text-xl text-gray-300">
-        <span>👍 <span class="ml-1 text-base"><%= review.helpful_count %></span></span>
-        <span>👎 <span class="ml-1 text-base"><%= review.not_helpful_count %></span></span>
-        <span>💬 <span class="ml-1 text-base">0</span></span>
+    <!-- NAJNOVŠIE RECENZIE -->
+    <section
+      class="bg-linear-to-b from-[#05070d] to-[#07101d] px-6 py-16 sm:py-20"
+    >
+      <div class="mb-10 flex items-center gap-4">
+        <span class="text-4xl text-yellow-400">⭐</span>
+        <h2 class="text-3xl font-extrabold sm:text-5xl">Najnovšie recenzie</h2>
       </div>
-    </article>
-  <% }) %>
-</div>
-  </section>
+      <div class="grid gap-8 lg:grid-cols-2">
+        <% latestReviews.forEach(review => { %>
+        <article
+          class="rounded-3xl bg-white/10 p-6 shadow-[0_10px_40px_rgba(0,0,0,0.35)] backdrop-blur-sm"
+        >
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <a href="/users/<%= review.username %>">
+                <img
+                  src="<%= review.avatar %>"
+                  alt="Avatar používateľa <%= review.username %>"
+                  class="h-12 w-12 rounded-full object-cover"
+                />
+              </a>
+              <div>
+                <a
+                  href="/users/<%= review.username %>"
+                  class="font-semibold text-white transition hover:text-[#00c950]"
+                >
+                  <%= review.username %>
+                </a>
+                <p class="text-sm text-gray-400">
+                  <%= new Date(review.created_at).toLocaleDateString("sk-SK") %>
+                </p>
+              </div>
+            </div>
 
-  <%- include("partials/footer") %>
+            <div class="text-right">
+              <span class="text-xl font-bold text-white"
+                >⭐ <%= review.rating %>/10</span
+              >
+            </div>
+          </div>
 
-</body>
+          <% if (review.title) { %>
+          <h3 class="mt-6 text-3xl font-semibold"><%= review.title %></h3>
+          <% } else { %>
+          <h3 class="mt-6 text-3xl font-semibold">Bez nadpisu</h3>
+          <% } %>
+
+          <p class="mt-2 text-lg font-medium text-[#00c950]">
+            <a
+              href="/movies/<%= review.tmdb_movie_id %>"
+              class="transition hover:opacity-80"
+            >
+              <%= review.movieTitle %>
+            </a>
+          </p>
+
+          <p class="mt-4 line-clamp-4 text-base leading-7 text-gray-300">
+            <%= review.review_text %>
+          </p>
+
+          <div
+            class="mt-8 flex items-center justify-end gap-6 text-xl text-gray-300"
+          >
+            <span
+              >👍
+              <span class="ml-1 text-base"
+                ><%= review.helpful_count %></span
+              ></span
+            >
+            <span
+              >👎
+              <span class="ml-1 text-base"
+                ><%= review.not_helpful_count %></span
+              ></span
+            >
+            <span>💬 <span class="ml-1 text-base">0</span></span>
+          </div>
+        </article>
+        <% }) %>
+      </div>
+    </section>
+
+    <%- include("partials/footer") %>
+  </body>
 </html>

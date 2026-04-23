@@ -76,7 +76,8 @@ function buildImageUrl(config, size, filePath) {
 function mapMovieInfo(movie, config) {
   return {
     title: movie.title || FALLBACKS.movieTitle,
-    poster: buildImageUrl(config, "w500", movie.poster_path) || FALLBACKS.poster,
+    poster:
+      buildImageUrl(config, "w500", movie.poster_path) || FALLBACKS.poster,
   };
 }
 

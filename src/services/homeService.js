@@ -3,7 +3,7 @@ const tmdbService = require("./tmdbService");
 
 const HOMEPAGE_REVIEW_LIMIT = 2;
 const HOMEPAGE_MOVIE_LIMIT = 4;
-const HOMEPAGE_VOTE_COUNT_MIN = 100;
+const HOMEPAGE_VOTE_COUNT_MIN = 60;
 
 const FALLBACKS = {
   movieTitle: "Neznámy film",
@@ -68,7 +68,8 @@ async function attachMovieInfoToReviews(reviews) {
   return reviews.map((review) => ({
     ...review,
     movieTitle:
-      moviesInfoMap[Number(review.tmdb_movie_id)]?.title || FALLBACKS.movieTitle,
+      moviesInfoMap[Number(review.tmdb_movie_id)]?.title ||
+      FALLBACKS.movieTitle,
     moviePoster:
       moviesInfoMap[Number(review.tmdb_movie_id)]?.poster ||
       FALLBACKS.reviewPoster,
