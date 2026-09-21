@@ -62,9 +62,16 @@
               <p
                 class="mt-5 max-w-2xl text-lg leading-8 text-gray-200 sm:text-2xl sm:leading-9"
               >
-                <% if (profileUser.bio) { %> <%= profileUser.bio %> <% } else if
-                (isOwnProfile) { %> Toto je tvoj profil vo FilmRate. <% } else {
-                %> Profil používateľa <%= profileUser.username %> vo FilmRate.
+                <% if (profileUser.bio) { %>
+                <%= profileUser.bio %>
+                <% } else if
+                (isOwnProfile) { %>
+                Toto je tvoj profil vo FilmRate.
+                <% } else {
+                %>
+                Profil používateľa
+                <%= profileUser.username %>
+                vo FilmRate.
                 <% } %>
               </p>
 
@@ -163,7 +170,7 @@
     </section>
 
     <!-- REVIEWS -->
-    <section on id="reviews" class="bg-[#07101d] px-6 py-12 sm:py-14">
+    <section id="reviews" class="bg-[#07101d] px-6 py-12 sm:py-14">
       <div class="mx-auto max-w-7xl">
         <h2 class="text-5xl font-extrabold sm:text-6xl">Recenzie</h2>
 

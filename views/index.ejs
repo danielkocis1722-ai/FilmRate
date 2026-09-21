@@ -77,8 +77,8 @@
             </p>
 
             <p class="mt-3 line-clamp-2 text-sm text-gray-500">
-              <%= movie.cast.length ? movie.cast.join(", ") : "Obsadenie nie je
-              dostupné." %>
+              <%# prettier-ignore %> <%= movie.cast && movie.cast.length ?
+              movie.cast.join(", ") : "Obsadenie nie je dostupné." %>
             </p>
 
             <div class="mt-5 flex items-center justify-between">
@@ -89,7 +89,8 @@
                 Zobraziť detail
               </a>
               <span class="text-sm font-medium text-yellow-400"
-                >⭐ <%= movie.rating %>/10</span
+                >⭐
+                <%= movie.rating %>/10</span
               >
             </div>
           </div>
@@ -135,7 +136,8 @@
 
             <div class="text-right">
               <span class="text-xl font-bold text-white"
-                >⭐ <%= review.rating %>/10</span
+                >⭐
+                <%= review.rating %>/10</span
               >
             </div>
           </div>
